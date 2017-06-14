@@ -1,0 +1,85 @@
+
+#include <Wii.h>
+#include <usbhub.h>
+#include "hastlermotor.h"
+
+#define Hastler_front ONE 
+#define Hastler_back TWO
+#define Hastler_right DOWN
+#define Hastler_left UP
+
+// Satisfy the IDE, which needs to see the include statment in the ino too.
+#ifdef dobogusinclude
+#include <spi4teensy3.h>
+#include <SPI.h>
+#endif
+
+USB Usb;
+//USBHub Hub1(&Usb); // Some dongles have a hub inside
+
+BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
+/* You can create the instance of the class in two ways */
+WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimote - you only have to do this once
+//WII Wii(&Btd); // After that you can simply create the instance like so and then press any button on the Wiimote
+
+bool printAngle;
+
+void setup() {
+  Serial.begin(115200);
+#if !defined(__MIPSEL__)
+  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+#endif
+  if (Usb.Init() == -1) {
+    Serial.print(F("\r\nOSC did not start"));
+    while (1); //halt
+  }
+  Serial.print(F("\r\nWiimote Bluetooth Library Started"));
+  hastler_motor_init();
+}
+
+void loop() {
+  static int val_front = STOP_MOTER_VAL,val_back = STOP_MOTER_VAL;
+  Usb.Task();
+  if (Wii.wiimoteConnected) {
+    if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
+      Serial.print(F("\r\nHOME"));
+      Wii.disconnect();
+    }
+    else {
+      if (Wii.getButtonPress(Hastler_left)) {
+        Serial.print(F("\r\nLeft"));
+        hastler_moter_front(MIN_MOTER_VAL);
+      }else if (Wii.getButtonPress(Hastler_right)) {
+        Serial.print(F("\r\nRight"));
+        hastler_moter_front(MAX_MOTER_VAL);
+      }else{
+        Serial.print(F("\r\n"));
+        hastler_moter_front(STOP_MOTER_VAL);
+      }
+
+      if (Wii.getButtonPress(Hastler_back)) {
+        Serial.print(F("\r\nDown"));
+        if(0 < val_back){
+          hastler_moter_back(--val_back);
+        }
+      }else if (Wii.getButtonPress(Hastler_front)) {
+        Serial.print(F("\r\nUp"));
+        if(val_back < MAX_MOTER_VAL){
+          hastler_moter_back(++val_back);
+        }
+      }else{
+        Serial.print(F("\r\n"));
+        if(val_back <= STOP_MOTER_VAL){
+          hastler_moter_back(++val_back);
+        }else{
+          hastler_moter_back(--val_back);
+        }
+      }
+
+      if (Wii.getButtonPress(A)) {
+        printAngle = !printAngle;
+        Serial.print(F("\r\nA"));
+      }
+    }
+  }
+}

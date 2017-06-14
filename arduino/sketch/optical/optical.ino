@@ -33,7 +33,7 @@ int fadeAmount = 5;    // how many points to fade the LED by
 void setup() {
   pinMode(led, OUTPUT);
   // initialize serial communications at 9600 bps:
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
