@@ -1,6 +1,7 @@
 
 #include <Wii.h>
 #include <usbhub.h>
+#include <Wire.h>
 #include "hastlermotor.h"
 
 #define Hastler_front ONE 
@@ -23,6 +24,7 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 //WII Wii(&Btd); // After that you can simply create the instance like so and then press any button on the Wiimote
 
 bool printAngle;
+byte x = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -35,6 +37,7 @@ void setup() {
   }
   Serial.print(F("\r\nWiimote Bluetooth Library Started"));
   hastler_motor_init();
+  Wire.begin(); // join i2c bus (address optional for master)
 }
 
 void loop() {
@@ -76,9 +79,13 @@ void loop() {
         }
       }
 
-      if (Wii.getButtonPress(A)) {
+      if (Wii.getButtonClick(A)) {
         printAngle = !printAngle;
         Serial.print(F("\r\nA"));
+        Wire.beginTransmission(8); // transmit to device #8
+        Wire.write("x is ");        // sends five bytes
+        Wire.write(x);              // sends one byte
+        Wire.endTransmission();    // stop transmitting
       }
     }
   }
