@@ -83,10 +83,19 @@ void loop() {
         printAngle = !printAngle;
         Serial.print(F("\r\nA"));
         Wire.beginTransmission(8); // transmit to device #8
-        Wire.write("x is ");        // sends five bytes
-        Wire.write(x);              // sends one byte
+//        Wire.write("x is ");        // sends five bytes
+//        Wire.write(x);              // sends one byte
+        Wire.write('A');              // sends one byte
         Wire.endTransmission();    // stop transmitting
       }
+    }
+  }else{
+    //接続が切れたときモーターを止める
+    hastler_moter_front(STOP_MOTER_VAL);
+    if(val_back <= STOP_MOTER_VAL){
+      hastler_moter_back(++val_back);
+    }else{
+      hastler_moter_back(--val_back);
     }
   }
 }
