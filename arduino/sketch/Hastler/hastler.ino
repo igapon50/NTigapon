@@ -25,6 +25,9 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 
 bool printAngle;
 byte x = 0;
+const int sensor_light = A0;
+const int front_light = A1;
+const int back_light = A2;
 
 void setup() {
   Serial.begin(115200);
@@ -35,6 +38,7 @@ void setup() {
     Serial.print(F("\r\nOSC did not start"));
     while (1); //halt
   }
+  
   Serial.print(F("\r\nWiimote Bluetooth Library Started"));
   hastler_motor_init();
   Wire.begin(); // join i2c bus (address optional for master)
@@ -62,16 +66,19 @@ void loop() {
 
       if (Wii.getButtonPress(Hastler_back)) {
         Serial.print(F("\r\nDown"));
+        analogWrite(back_light, 0);
         if(0 < val_back){
           hastler_moter_back(--val_back);
         }
       }else if (Wii.getButtonPress(Hastler_front)) {
         Serial.print(F("\r\nUp"));
+        analogWrite(back_light, 0);
         if(val_back < MAX_MOTER_VAL){
           hastler_moter_back(++val_back);
         }
       }else{
         Serial.print(F("\r\n"));
+        analogWrite(back_light, 255);
         if(val_back <= STOP_MOTER_VAL){
           hastler_moter_back(++val_back);
         }else{
@@ -82,16 +89,27 @@ void loop() {
       if (Wii.getButtonClick(A)) {
         printAngle = !printAngle;
         Serial.print(F("\r\nA"));
+        analogWrite(front_light, 255);
+        analogWrite(back_light, 255);
         Wire.beginTransmission(8); // transmit to device #8
 //        Wire.write("x is ");        // sends five bytes
 //        Wire.write(x);              // sends one byte
         Wire.write('A');              // sends one byte
         Wire.endTransmission();    // stop transmitting
+      }else{
+        int sensorValue = analogRead(sensor_light);
+        if(sensorValue < 800){
+          analogWrite(front_light, 0);
+        }else{
+          analogWrite(front_light, 255);
+        }
       }
     }
   }else{
     //接続が切れたときモーターを止める
     hastler_moter_front(STOP_MOTER_VAL);
+    analogWrite(front_light, 0);
+    analogWrite(back_light, 0);
     if(val_back <= STOP_MOTER_VAL){
       hastler_moter_back(++val_back);
     }else{

@@ -33,10 +33,12 @@ void CamStateHandlers::OnDeviceInitializedState(PTP *ptp)
     {
         stateConnected = stConnected;
         E_Notify(PSTR("Camera connected\r\n"), 0x80);
-
+    }
+    if (stateConnected == stConnected) {
         ptp->CaptureImage();
         delay(1000);
     }
+    Serial.println("OnDeviceInitializedState");
 }
 
 void setup() {
@@ -53,7 +55,6 @@ void setup() {
 
 void loop() {
   Usb.Task();
-  delay(100);
 }
 
 // function that executes whenever data is received from master
