@@ -2,10 +2,26 @@
 Servo servo;//Servoオブジェクトを作成
 void setup()
 {
-  servo.attach(9,1500-600,1500+600); //D9ピンをサーボの信号線として設定
+  Serial.begin(9600);
+  servo.attach(3,1500-600,1500+600); //D9ピンをサーボの信号線として設定
+  servo.write(90); // サーボの角度を90°に設定
 }
 void loop()
 {
+#if 1
+  int sensorValue1 = analogRead(A0);
+  int sensorValue2 = analogRead(A1);
+  //515 508
+  int rad = sensorValue1*180.0/1023.0;
+  servo.write(rad); // サーボの角度を90°に設定
+//  servo.write(90); // サーボの角度を90°に設定
+  Serial.print(rad);
+  Serial.print("\t");
+  Serial.print(sensorValue1);
+  Serial.print("\t");
+  Serial.println(sensorValue2);
+
+#else
   servo.write(90); // サーボの角度を90°に設定
   servo.write(117);
   servo.write(133);
@@ -50,5 +66,6 @@ void loop()
   servo.write(86);
   servo.write(90); // サーボの角度を90°に設定
   delay(3000);
+#endif
 }
 

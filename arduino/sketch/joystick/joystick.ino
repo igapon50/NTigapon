@@ -19,10 +19,17 @@ void loop() {
   int sensorValue1 = analogRead(A0);
   int sensorValue2 = analogRead(A1);
   // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+#if 1
+  //269-754
+  Serial.print(sensorValue1);
+  Serial.print("\t");
+  Serial.println(sensorValue2);
+#else
   float voltage1 = sensorValue1 * (5.0 / 1023.0);
   float voltage2 = sensorValue2 * (5.0 / 1023.0);
   // print out the value you read:
   Serial.print(voltage1);
   Serial.print("\t");
   Serial.println(voltage2);
+#endif
 }
