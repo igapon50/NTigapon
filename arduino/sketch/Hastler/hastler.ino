@@ -25,6 +25,10 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 
 bool printAngle;
 byte x = 0;
+unsigned int checkcount = 0;
+#define CONNECTION_TIMEOUT 5
+float older_pitch = 0.0;//切断検出用
+float older_roll = 0.0;//切断検出用
 const int sensor_light = A0;
 const int front_light = A1;
 const int back_light = A2;
@@ -50,9 +54,37 @@ void loop() {
   if (Wii.wiimoteConnected) {
     if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
       Serial.print(F("\r\nHOME"));
+      {
+        //接続が切れたとき動作を停止する
+        hastler_moter_front(STOP_MOTER_VAL);
+        hastler_moter_back(STOP_MOTER_VAL);
+        analogWrite(front_light, 0);
+        analogWrite(back_light, 0);
+      }
       Wii.disconnect();
-    }
-    else {
+    } else {
+      float newer_pitch,newer_roll;
+      newer_pitch = Wii.getPitch();
+      newer_roll = Wii.getRoll();
+      if( older_pitch == newer_pitch && older_roll == newer_roll ){
+        checkcount++;
+      }else{
+        older_pitch = newer_pitch;
+        older_roll = newer_roll;
+        checkcount = 0;
+      }
+      if (CONNECTION_TIMEOUT < checkcount){
+        checkcount = 0;
+        {
+          //接続が切れたとき動作を停止する
+          hastler_moter_front(STOP_MOTER_VAL);
+          hastler_moter_back(STOP_MOTER_VAL);
+          analogWrite(front_light, 0);
+          analogWrite(back_light, 0);
+        }
+        Wii.disconnect();
+        return;
+      }
       if (Wii.getButtonPress(Hastler_left)) {
         Serial.print(F("\r\nLeft"));
         hastler_moter_front(MIN_MOTER_VAL);
@@ -106,14 +138,10 @@ void loop() {
       }
     }
   }else{
-    //接続が切れたときモーターを止める
+    //接続が切れたとき動作を停止する
     hastler_moter_front(STOP_MOTER_VAL);
+    hastler_moter_back(STOP_MOTER_VAL);
     analogWrite(front_light, 0);
     analogWrite(back_light, 0);
-    if(val_back <= STOP_MOTER_VAL){
-      hastler_moter_back(++val_back);
-    }else{
-      hastler_moter_back(--val_back);
-    }
   }
 }
