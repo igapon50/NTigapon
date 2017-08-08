@@ -1,5 +1,9 @@
 #include <Servo.h>
 Servo servo;//Servoオブジェクトを作成
+
+#define MAX_SENSER_VAL 754
+#define MIN_SENSER_VAL 269
+
 void setup()
 {
   Serial.begin(9600);
@@ -9,10 +13,12 @@ void setup()
 void loop()
 {
 #if 1
-  int sensorValue1 = analogRead(A0);
-  int sensorValue2 = analogRead(A1);
-  //515 508
-  int rad = sensorValue1*180.0/1023.0;
+  int rad;
+  int sensorValue1 = analogRead(A0);//515,269-754
+  int sensorValue2 = analogRead(A1);//508
+  rad = map(sensorValue1,0,1023,0,180);
+//  rad = map(sensorValue1,268,755,0,180);
+//  rad = sensorValue1*180.0/1023.0;
   servo.write(rad); // サーボの角度を90°に設定
 //  servo.write(90); // サーボの角度を90°に設定
   Serial.print(rad);
