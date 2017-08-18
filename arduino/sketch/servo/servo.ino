@@ -13,15 +13,15 @@ void setup()
 void loop()
 {
 #if 1
-  int rad;
+  int angle;
   int sensorValue1 = analogRead(A0);//515,269-754
   int sensorValue2 = analogRead(A1);//508
-  rad = map(sensorValue1,0,1023,0,180);
-//  rad = map(sensorValue1,268,755,0,180);
-//  rad = sensorValue1*180.0/1023.0;
-  servo.write(rad); // サーボの角度を90°に設定
+  angle = map(sensorValue1,0,1023,0,180);
+//  angle = map(sensorValue1,268,755,0,180);
+//  angle = sensorValue1*180.0/1023.0;
+  servo.write(angle); // サーボの角度を90°に設定
 //  servo.write(90); // サーボの角度を90°に設定
-  Serial.print(rad);
+  Serial.print(angle);
   Serial.print("\t");
   Serial.print(sensorValue1);
   Serial.print("\t");
