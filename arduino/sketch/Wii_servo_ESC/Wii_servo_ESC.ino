@@ -51,6 +51,7 @@ TwoButtonControlMotor moterspeed,servoangle;
 //       D6(PWM)-Vref
 //---------------------------
 void setup() {
+//  Serial.begin(9600);
   Serial.begin(115200);
   moterspeed.init(5);
   servoangle.init(5,45,90,135);
