@@ -1,28 +1,17 @@
-/*
- Example sketch for the Wiimote Bluetooth library - developed by Kristian Lauszus
- For more information visit my blog: http://blog.tkjelectronics.dk/ or
- send me an e-mail:  kristianl@tkjelectronics.com
- */
-
 #include <Wii.h>
 #include <usbhub.h>
 #include <Wire.h>
 #include <Servo.h>
 #include "TwoButtonControlMotor.h"
 
-// Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
 #include <SPI.h>
 #endif
 
 USB Usb;
-//USBHub Hub1(&Usb); // Some dongles have a hub inside
-
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
-/* You can create the instance of the class in two ways */
 WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimote - you only have to do this once
-//WII Wii(&Btd); // After that you can simply create the instance like so and then press any button on the Wiimote
 
 bool printAngle;
 
