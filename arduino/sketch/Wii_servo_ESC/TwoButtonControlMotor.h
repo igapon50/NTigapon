@@ -5,7 +5,7 @@ class TwoButtonControlMotor{
 // 前進、後進によるモーター制御変数クラス
 // Arduinoから使用するClass
 public:
-    //ステップ値、最小値、停止値、最大値の設定
+    //初期化処理(ステップ値、最小値、停止値、最大値の設定)
     void init(int step = 1, int minval = 0, int stopval = 90, int maxval = 180){
       m_val = m_step = step;
       m_minval = minval;
@@ -55,6 +55,11 @@ public:
       }
     }
 
+    //現在の値を取得する
+    int getValue(void){
+      return(m_val);
+    }
+
     //加速、減速時のステップを指定した値で更新する、0から(m_maxval - m_minval)/2の範囲内で指定する
     void setStepval(int step = 1){
       if(0 < step && step < (m_maxval - m_minval)/2 ){
@@ -62,14 +67,27 @@ public:
       }
     }
 
-    //現在の値を取得する
-    int getValue(void){
-      return(m_val);
-    }
-
     //加速、減速時のステップを取得する
     int getStepval(void){
       return(m_step);
+    }
+
+    //最小値、停止値、最大値の設定を1度増加する
+    void upTrim(void){
+      if(m_stopval < 135){
+        m_minval++;
+        m_stopval++;
+        m_maxval++;
+      }
+    }
+
+    //最小値、停止値、最大値の設定を1度減少する
+    void downTrim(void){
+      if(45 < m_stopval){
+        m_minval--;
+        m_stopval--;
+        m_maxval--;
+      }
     }
 
     //停止値を取得する
@@ -96,6 +114,7 @@ public:
     int QuickStop(void){
       return(m_val = m_stopval);
     }
+
 private:
     int m_minval = 0, m_stopval = 90, m_maxval = 180;
     int m_val = m_stopval;

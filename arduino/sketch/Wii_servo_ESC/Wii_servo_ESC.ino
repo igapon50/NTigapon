@@ -112,6 +112,16 @@ void loop() {
         oldtime = millis();
       }
 
+      //ステアリング調整
+      if (Wii.getButtonClick(PLUS)){
+        servoangle.upTrim();
+        Serial.print(F("\r\nPlus"));
+      }
+      if (Wii.getButtonClick(MINUS)){
+        servoangle.downTrim();
+        Serial.print(F("\r\nMinus"));
+      }
+
       //ステアリング制御
       if (Wii.getButtonPress(ButtonPress_left)) {
         Serial.print(F("\r\nLeft"));
@@ -144,11 +154,6 @@ void loop() {
       Serial.print(moterspeed.getValue());
 
 #if 0
-      if (Wii.getButtonPress(PLUS))
-        Serial.print(F("\r\nPlus"));
-      if (Wii.getButtonClick(MINUS))
-        Serial.print(F("\r\nMinus"));
-
       if (Wii.getButtonPress(A)) {
         printAngle = !printAngle;
         Serial.print(F("\r\nA"));
