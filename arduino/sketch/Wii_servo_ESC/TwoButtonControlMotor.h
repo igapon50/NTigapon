@@ -55,6 +55,14 @@ public:
       }
     }
 
+    //現在の値を設定する
+    bool setValue(int val){
+      if(m_minval <= val && val <= m_maxval){
+        m_val = val;
+      return(true);
+      }
+      return(false);
+    }
     //現在の値を取得する
     int getValue(void){
       return(m_val);
@@ -88,6 +96,15 @@ public:
         m_stopval--;
         m_maxval--;
       }
+    }
+
+    //最小値を取得する
+    int getMinval(void){
+      return(m_minval);
+    }
+    //最大値を取得する
+    int getMaxval(void){
+      return(m_maxval);
     }
 
     //停止値を取得する

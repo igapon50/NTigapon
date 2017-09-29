@@ -70,20 +70,28 @@ void loop() {
       Wii.disconnect();
     }
     else {
-      //駆動時だけ接続チェックする
+      static bool steeringtypePitch = false;//tureならpitchによる制御、falseならUP/DOWNによるTwoButtonControlMotor制御
+      int steeringValue;
       static unsigned int checkcount = 0;
       static unsigned long oldtime = 0;
+      static float newer_pitch = 0.0;
+      static float older_pitch = 0.0;//切断検出用
+      newer_pitch = Wii.getPitch();//こちらはステアリングにも使うのでここ右100-左260の範囲を使用
+      steeringValue = map(constrain(newer_pitch, 100, 260),260,100,servoangle.getMinval(),servoangle.getMaxval());
+      Serial.print(F("\t\npitch = "));
+      Serial.print(newer_pitch);
+      //コネクション切断検出用チェック処理
+      //駆動時だけ接続チェックする
       if(moterspeed.getValue() != moterspeed.getStopval()){
-        static float newer_pitch = 0.0;
         static float newer_roll = 0.0;
-        static float older_pitch = 0.0;//切断検出用
         static float older_roll = 0.0;//切断検出用
-        newer_pitch = Wii.getPitch();
+        static float newer_yaw = 0.0;//Wii PLUSでのみ検出可能、未使用
         newer_roll = Wii.getRoll();
-        Serial.print(F("\r\npitch = "));
-        Serial.print(newer_pitch);
+        newer_yaw = Wii.getYaw();
         Serial.print(F("\troll = "));
         Serial.print(newer_roll);
+        Serial.print(F("\tyaw = "));
+        Serial.print(newer_yaw);
         if( older_pitch == newer_pitch && older_roll == newer_roll ){
           checkcount++;
         }else{
@@ -122,31 +130,50 @@ void loop() {
         Serial.print(F("\r\nMinus"));
       }
 
-      //ステアリング制御
-      if (Wii.getButtonPress(ButtonPress_left)) {
-        Serial.print(F("\r\nLeft"));
-        servo.write(--servoangle);
-      }else if (Wii.getButtonPress(ButtonPress_right)) {
-        Serial.print(F("\r\nRight"));
-        servo.write(++servoangle);
-      }else{
-        Serial.print(F("\r\nNON"));
-        servo.write(servoangle.Stop());
+      //ステアリング制御方式切り替え
+      if (Wii.getButtonClick(B)){
+//        Wii.setRumbleToggle();
+        if (steeringtypePitch){
+          steeringtypePitch = false;
+        }else{
+          steeringtypePitch = true;
+        }
+        Serial.print(F("\r\nB"));
       }
-      Serial.print(F("\tservoangle = "));
-      Serial.print(servoangle.getValue());
+
+      //ステアリング制御
+      if(steeringtypePitch){
+        Serial.print(F("\r\nPitch"));
+        servoangle.setValue(steeringValue);
+        servo.write(servoangle.getValue());
+        Serial.print(F("\tservoangle = "));
+        Serial.print(servoangle.getValue());
+      }else{
+        if (Wii.getButtonPress(ButtonPress_left)) {
+          Serial.print(F("\r\nLeft"));
+          servo.write(--servoangle);
+        }else if (Wii.getButtonPress(ButtonPress_right)) {
+          Serial.print(F("\r\nRight"));
+          servo.write(++servoangle);
+        }else{
+          Serial.print(F("\r\nNON"));
+          servo.write(servoangle.Stop());
+        }
+        Serial.print(F("\tservoangle = "));
+        Serial.print(servoangle.getValue());
+      }
 
       //駆動力制御
       if (Wii.getButtonPress(ButtonPress_back)) {
-        Serial.print(F("\r\nBACK"));
+        Serial.print(F("\tBACK"));
         analogWrite(back_light, 0);
         esc.write(--moterspeed);
       }else if (Wii.getButtonPress(ButtonPress_front)) {
-        Serial.print(F("\r\nFRONT"));
+        Serial.print(F("\tFRONT"));
         analogWrite(back_light, 0);
         esc.write(++moterspeed);
       }else{
-        Serial.print(F("\r\nNON"));
+        Serial.print(F("\tNON"));
         analogWrite(back_light, 255);
         esc.write(moterspeed.Stop());
       }
@@ -157,10 +184,6 @@ void loop() {
       if (Wii.getButtonPress(A)) {
         printAngle = !printAngle;
         Serial.print(F("\r\nA"));
-      }
-      if (Wii.getButtonPress(B)) {
-        Wii.setRumbleToggle();
-        Serial.print(F("\r\nB"));
       }
 #endif
     }
