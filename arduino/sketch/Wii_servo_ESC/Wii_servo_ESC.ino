@@ -1,47 +1,83 @@
 #include <Wii.h>
 #include <usbhub.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include <Servo.h>
 #include "TwoButtonControlMotor.h"
 
-#ifdef dobogusinclude
-#include <spi4teensy3.h>
-#include <SPI.h>
-#endif
+//#ifdef dobogusinclude
+//#include <spi4teensy3.h>
+//#include <SPI.h>
+//#endif
 
 USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimote - you only have to do this once
-
-bool printAngle;
 
 #define CONNECTION_TIMEOUT_COUNT (50/*タイムアウト判断するチェック回数*/)
 #define ButtonPress_front ONE
 #define ButtonPress_back TWO
 #define ButtonPress_right DOWN
 #define ButtonPress_left UP
-const int sensor_light = A0;
-const int front_light = A1;
-const int back_light = A2;
-Servo servo,esc;//オブジェクトを作成
-TwoButtonControlMotor moterspeed,servoangle;
-
+//const int sensor_light = A0;
+//const int front_light = A1;
+//const int back_light = A2;
+bool printAngle;
 //---------------------------
-// Arduino Pinアサイン
+// Arduino Pinアサインと定義
 //   D0とD1は、シリアル通信に使用する
 //   D8～D13は、USB Host Sheildに使用する
 //   A4とA5は、SPI通信に使用する
 //   上記以外ではD2～D7が使用可能である
 //   PWMは、5番, 6番Pinは977Hz(1ms周期), 9番,10番PINは490Hz, 3番,11番PINも490Hz(2ms周期)となっている
 //   Vrefに用いるPIN番号は
-//     モーター1
+//     モーター1(servo)
 //       D3(PWM)-Vref
-//     モーター2
+//     モーター2(esc)
 //       D6(PWM)-Vref
+Servo servo,esc;//オブジェクトを作成
+TwoButtonControlMotor moterspeed,servoangle;
+//   超音波センサに用いるPIN番号は
+//     前方
+//       D2-Trigger Pin
+//       D4-Ecoh Pin
+//     後方
+//       D5-Trigger Pin
+//       D7-Ecoh Pin
+#define front_trigPin 2 // Trigger Pin
+#define front_echoPin 4 // Echo Pin
+#define back_trigPin 5 // Trigger Pin
+#define back_echoPin 7 // Echo Pin
 //---------------------------
-void setup() {
+
+double getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
+{
+  double l_Duration = 0; //受信した間隔
+  double l_Distance = 0; //距離
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH); //超音波を出力
+  delayMicroseconds(10); //
+  digitalWrite(trigPin, LOW);
+  l_Duration = pulseIn(echoPin, HIGH); //センサからの入力
+  if(l_Duration > 0){
+    l_Duration = l_Duration/2; //往復距離を半分にする
+    l_Distance = l_Duration*340*100/1000000; // 音速を340m/sに設定
+    Serial.print("\tDistance = ");
+    Serial.print(l_Distance);
+    Serial.print(" cm");
+    return(l_Distance);
+  }
+  return(0.0);
+}
+
+void setup()
+{
 //  Serial.begin(9600);
   Serial.begin(115200);
+  pinMode( front_trigPin, OUTPUT );
+  pinMode( front_echoPin, INPUT );
+  pinMode( back_trigPin, OUTPUT );
+  pinMode( back_echoPin, INPUT );
   moterspeed.init(5);
   servoangle.init(5,45,90,135);
   esc.attach(6,1500-500,1500+500); //D6ピンを信号線として設定//使用PIN、ニュートラル1500[μsec]、可変範囲±500[μsec]
@@ -58,18 +94,18 @@ void setup() {
   }
   Serial.print(F("\r\nWiimote Bluetooth Library Started"));
 }
-void loop() {
+void loop()
+{
   Usb.Task();
   if (Wii.wiimoteConnected) {
     if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
       Serial.print(F("\r\nHOME"));
       //接続が切れたとき動作を停止する
       esc.write(moterspeed.QuickStop());
-      analogWrite(front_light, 0);
-      analogWrite(back_light, 0);
+//      analogWrite(front_light, 0);
+//      analogWrite(back_light, 0);
       Wii.disconnect();
-    }
-    else {
+    }else{
       static bool steeringtypePitch = false;//tureならpitchによる制御、falseならUP/DOWNによるTwoButtonControlMotor制御
       int steeringValue;
       static unsigned int checkcount = 0;
@@ -78,20 +114,22 @@ void loop() {
       static float older_pitch = 0.0;//切断検出用
       newer_pitch = Wii.getPitch();//こちらはステアリングにも使うのでここ右100-左260の範囲を使用
       steeringValue = map(constrain(newer_pitch, 100, 260),260,100,servoangle.getMinval(),servoangle.getMaxval());
-      Serial.print(F("\t\npitch = "));
-      Serial.print(newer_pitch);
+//      Serial.print(F("\t\npitch = "));
+//      Serial.print(newer_pitch);
       //コネクション切断検出用チェック処理
-      //駆動時だけ接続チェックする
-      if(moterspeed.getValue() != moterspeed.getStopval()){
+      //駆動時だけチェックする
+      int l_stopval = moterspeed.getStopval();
+      int l_getval = moterspeed.getValue();
+      if(l_getval != l_stopval){
         static float newer_roll = 0.0;
         static float older_roll = 0.0;//切断検出用
-        static float newer_yaw = 0.0;//Wii PLUSでのみ検出可能、未使用
+//        static float newer_yaw = 0.0;//Wii PLUSでのみ検出可能、未使用
         newer_roll = Wii.getRoll();
-        newer_yaw = Wii.getYaw();
+//        newer_yaw = Wii.getYaw();
         Serial.print(F("\troll = "));
         Serial.print(newer_roll);
-        Serial.print(F("\tyaw = "));
-        Serial.print(newer_yaw);
+//        Serial.print(F("\tyaw = "));
+//        Serial.print(newer_yaw);
         if( older_pitch == newer_pitch && older_roll == newer_roll ){
           checkcount++;
         }else{
@@ -109,8 +147,8 @@ void loop() {
           checkcount = 0;
           //接続が切れたとき動作を停止する
           esc.write(moterspeed.QuickStop());
-          analogWrite(front_light, 0);
-          analogWrite(back_light, 0);
+//          analogWrite(front_light, 0);
+//          analogWrite(back_light, 0);
           Serial.print(F("\r\nesc QuickStop Timeout"));
           Wii.disconnect();
           return;
@@ -118,6 +156,33 @@ void loop() {
       }else{
         checkcount = 0;
         oldtime = millis();
+      }
+
+      //衝突回避
+      if(l_getval < l_stopval){ //前進時
+        double Distance = 0; //距離
+        Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
+        if(Distance < 100){
+          esc.write(moterspeed.QuickStop());
+          Wii.setRumbleOn();
+//          analogWrite(front_light, 0);
+//          analogWrite(back_light, 0);
+        }else{
+          Wii.setRumbleOff();
+        }
+      }else if(l_getval > l_stopval){ //後進時
+        double Distance = 0; //距離
+        Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
+        if(Distance < 100){
+          esc.write(moterspeed.QuickStop());
+          Wii.setRumbleOn();
+//          analogWrite(front_light, 0);
+//          analogWrite(back_light, 0);
+        }else{
+          Wii.setRumbleOff();
+        }
+      }else{
+        Wii.setRumbleOff();
       }
 
       //ステアリング調整
@@ -132,7 +197,6 @@ void loop() {
 
       //ステアリング制御方式切り替え
       if (Wii.getButtonClick(B)){
-//        Wii.setRumbleToggle();
         if (steeringtypePitch){
           steeringtypePitch = false;
         }else{
@@ -166,15 +230,15 @@ void loop() {
       //駆動力制御
       if (Wii.getButtonPress(ButtonPress_back)) {
         Serial.print(F("\tBACK"));
-        analogWrite(back_light, 0);
+//        analogWrite(back_light, 0);
         esc.write(--moterspeed);
       }else if (Wii.getButtonPress(ButtonPress_front)) {
         Serial.print(F("\tFRONT"));
-        analogWrite(back_light, 0);
+//        analogWrite(back_light, 0);
         esc.write(++moterspeed);
       }else{
         Serial.print(F("\tNON"));
-        analogWrite(back_light, 255);
+//        analogWrite(back_light, 255);
         esc.write(moterspeed.Stop());
       }
       Serial.print(F("\tmoterspeed = "));
