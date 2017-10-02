@@ -47,6 +47,8 @@ TwoButtonControlMotor moterspeed,servoangle;
 #define front_echoPin 4 // Echo Pin
 #define back_trigPin 5 // Trigger Pin
 #define back_echoPin 7 // Echo Pin
+#define front_limit_Distance 50 // 前方の障害物までの距離がこれより近づくと停止する[cm]
+#define back_limit_Distance 30 // 後方の障害物までの距離がこれより近づくと停止する[cm]
 //---------------------------
 
 double getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
@@ -162,7 +164,7 @@ void loop()
       if(l_getval < l_stopval){ //前進時
         double Distance = 0; //距離
         Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
-        if(Distance < 100){
+        if(Distance < front_limit_Distance){
           esc.write(moterspeed.QuickStop());
           Wii.setRumbleOn();
 //          analogWrite(front_light, 0);
@@ -173,7 +175,7 @@ void loop()
       }else if(l_getval > l_stopval){ //後進時
         double Distance = 0; //距離
         Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
-        if(Distance < 100){
+        if(Distance < back_limit_Distance){
           esc.write(moterspeed.QuickStop());
           Wii.setRumbleOn();
 //          analogWrite(front_light, 0);
