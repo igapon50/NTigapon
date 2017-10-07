@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 /****************************************************************************
 *
 * This file is for gatt client. It can scan ble device, connect one device.
@@ -41,14 +39,20 @@
 #define GATTC_TAG "GATTC_DEMO"
 //#define REMOTE_SERVICE_UUID        0x00FF
 //BLUETOOTH_CONTROL_COMMAND
-//#define REMOTE_SERVICE_UUID        {0x0f,0x29,0x17,0x46,0x0c,0x80,0x47,0x26,0x87,0xa7,0x3c,0x50,0x1f,0xd3,0xb4,0xb6,}
 #define REMOTE_SERVICE_UUID        {0xb6,0xb4,0xd3,0x1f,0x50,0x3c,0xa7,0x87,0x26,0x47,0x80,0x0c,0x46,0x17,0x29,0x0f,}
 
 //#define REMOTE_NOTIFY_CHAR_UUID    0xFF01
 //AUTH_BLUETOOTH_DEVICE_CHARA_UUID
-//#define REMOTE_NOTIFY_CHAR_UUID    {0xeb,0xaf,0xb2,0xf0,0x0e,0x0f,0x40,0xa2,0xa8,0x4f,0xe2,0xf0,0x98,0xdc,0x13,0xc3,}
 #define REMOTE_NOTIFY_CHAR_UUID    {0xc3,0x13,0xdc,0x98,0xf0,0xe2,0x4f,0xa8,0xa2,0x40,0x0f,0x0e,0xf0,0xb2,0xaf,0xeb,}
-#define REMOTE_AUTH_BLUETOOTH_DEVICE_CHARA_UUID    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}
+#define REMOTE_AUTH_BLUETOOTH_DEVICE_WRITE_UUID    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}
+
+//Shooting Control
+//1D0F3602-8DFB-4340-9045513040DAD991
+#define REMOTE_SERVICE_SHOOTING_CONTRAL_UUID {0x91,0xD9,0xDA,0x40,0x30,0x51,0x45,0x90,0x40,0x43,0xFB,0x8D,0x02,0x36,0x0F,0x1D,}
+//Take Picture
+//FEC1805C-8905-4477-B862-BA5E447528A5
+#define REMOTE_TAKE_PICTURE_CHAR_UUID {0xA5,0x28,0x75,0x44,0x5E,0xBA,0x62,0xB8,0x77,0x44,0x05,0x89,0x5C,0x80,0xC1,0xFE,}
+
 #define PROFILE_NUM      1
 #define PROFILE_A_APP_ID 0
 #define INVALID_HANDLE   0
@@ -58,6 +62,7 @@ static const char remote_device_name[] = "00101594";
 
 static bool connect    = false;
 static bool get_server = false;
+static bool auth_ble = false;
 static esp_gattc_char_elem_t *char_elem_result   = NULL;
 static esp_gattc_descr_elem_t *descr_elem_result = NULL;
 
@@ -71,15 +76,23 @@ static esp_bt_uuid_t remote_filter_service_uuid = {
     .len = ESP_UUID_LEN_128,
     .uuid.uuid128 = REMOTE_SERVICE_UUID,
 };
+static esp_bt_uuid_t remote_filter_shooting_contral_service_uuid = {
+    .len = ESP_UUID_LEN_128,
+    .uuid.uuid128 = REMOTE_SERVICE_SHOOTING_CONTRAL_UUID,
+};
 
 static esp_bt_uuid_t remote_filter_char_uuid = {
     .len = ESP_UUID_LEN_128,
     .uuid.uuid128 = REMOTE_NOTIFY_CHAR_UUID,
 };
-
-static esp_bt_uuid_t remote_auth_bluetooth_device_char_uuid = {
+static esp_bt_uuid_t remote_filter_take_picture_char_uuid = {
     .len = ESP_UUID_LEN_128,
-    .uuid.uuid128 = REMOTE_AUTH_BLUETOOTH_DEVICE_CHARA_UUID,
+    .uuid.uuid128 = REMOTE_TAKE_PICTURE_CHAR_UUID,
+};
+
+static esp_bt_uuid_t remote_auth_bluetooth_device_write_uuid = {
+    .len = ESP_UUID_LEN_128,
+    .uuid.uuid128 = REMOTE_AUTH_BLUETOOTH_DEVICE_WRITE_UUID,
 };
 
 static esp_bt_uuid_t notify_descr_uuid = {
@@ -176,15 +189,6 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
         } else {
             ESP_LOGE(GATTC_TAG, "UNKNOWN LEN %d\n", srvc_id->id.uuid.len);
         }
-#if 0
-    	if (srvc_id->id.uuid.len == ESP_UUID_LEN_16 && srvc_id->id.uuid.uuid.uuid16 == REMOTE_SERVICE_UUID) {
-            ESP_LOGI(GATTC_TAG, "service found");
-            get_server = true;
-            gl_profile_tab[PROFILE_A_APP_ID].service_start_handle = p_data->search_res.start_handle;
-            gl_profile_tab[PROFILE_A_APP_ID].service_end_handle = p_data->search_res.end_handle;
-            ESP_LOGI(GATTC_TAG, "UUID16: %x", srvc_id->id.uuid.uuid.uuid16);
-        }
-#endif
     	break;
     }
     case ESP_GATTC_SEARCH_CMPL_EVT:
@@ -193,59 +197,105 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
             break;
         }
         ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT");
-        if (get_server){
-            uint16_t count = 0;
-            esp_gatt_status_t status = esp_ble_gattc_get_attr_count( gattc_if,
-                                                                     p_data->search_cmpl.conn_id,
-                                                                     ESP_GATT_DB_CHARACTERISTIC,
-                                                                     gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
-                                                                     gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
-                                                                     INVALID_HANDLE,
-                                                                     &count);
-            if (status != ESP_GATT_OK){
-                ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_attr_count error");
-            }
-
-            if (count > 0){
-                char_elem_result = (esp_gattc_char_elem_t *)malloc(sizeof(char_elem_result) * count);
-                if (!char_elem_result){
-                    ESP_LOGE(GATTC_TAG, "gattc no mem");
-                }else{
-                    status = esp_ble_gattc_get_char_by_uuid( gattc_if,
-                                                             p_data->search_cmpl.conn_id,
-                                                             gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
-                                                             gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
-                                                             remote_filter_char_uuid,
-                                                             char_elem_result,
-                                                             &count);
-                    if (status != ESP_GATT_OK){
-                        ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_char_by_uuid error");
-                    }
-                    if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_WRITE)){
-                        gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
-                        esp_ble_gattc_write_char(gattc_if,
-                        	p_data->search_cmpl.conn_id,
-                        	char_elem_result[0].char_handle,
-                        	remote_auth_bluetooth_device_char_uuid.len,
-                        	(uint8_t *)remote_auth_bluetooth_device_char_uuid.uuid.uuid128,
-                        	ESP_GATT_WRITE_TYPE_NO_RSP,
-                        	ESP_GATT_AUTH_REQ_NONE);
-                    }
-#if 0
-remote_auth_bluetooth_device_char_uuid
-                    /*  Every service have only one char in our 'ESP_GATTS_DEMO' demo, so we used first 'char_elem_result' */
-                    if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_NOTIFY)){
-                        gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
-                        esp_ble_gattc_register_for_notify (gattc_if, gl_profile_tab[PROFILE_A_APP_ID].remote_bda, char_elem_result[0].char_handle);
-                    }
-#endif
-                }
-                /* free char_elem_result */
-                free(char_elem_result);
-            }else{
-                ESP_LOGE(GATTC_TAG, "no char found");
-            }
-        }
+		if(auth_ble){
+			if (get_server){
+				uint16_t count = 0;
+				ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step1");
+				esp_gatt_status_t status = esp_ble_gattc_get_attr_count( gattc_if,
+					p_data->search_cmpl.conn_id,
+					ESP_GATT_DB_CHARACTERISTIC,
+					gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
+					gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
+					INVALID_HANDLE,
+					&count);
+				ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step2");
+				if (status != ESP_GATT_OK){
+					ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_attr_count error");
+				}
+				if (count > 0){
+					ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step3");
+					char_elem_result = (esp_gattc_char_elem_t *)malloc(sizeof(char_elem_result) * count);
+					if (!char_elem_result){
+						ESP_LOGE(GATTC_TAG, "gattc no mem");
+					}else{
+						ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step4");
+						status = esp_ble_gattc_get_char_by_uuid( gattc_if,
+							p_data->search_cmpl.conn_id,
+							gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
+							gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
+							remote_filter_take_picture_char_uuid,
+							char_elem_result,
+							&count);
+						if (status != ESP_GATT_OK){
+							ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_char_by_uuid error");
+						}
+						ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step5");
+						if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_WRITE)){
+							gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
+							ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step6");
+							uint8_t value = 0x1;
+							esp_ble_gattc_write_char(gattc_if,
+								p_data->search_cmpl.conn_id,
+								char_elem_result[0].char_handle,
+								sizeof(value),
+								&value,
+								ESP_GATT_WRITE_TYPE_NO_RSP,
+								ESP_GATT_AUTH_REQ_NONE);
+							ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step7");
+						}
+					}
+					/* free char_elem_result */
+					free(char_elem_result);
+				}else{
+					ESP_LOGE(GATTC_TAG, "no char found");
+				}
+			}
+		}else{
+			if (get_server){
+				uint16_t count = 0;
+				esp_gatt_status_t status = esp_ble_gattc_get_attr_count( gattc_if,
+					p_data->search_cmpl.conn_id,
+					ESP_GATT_DB_CHARACTERISTIC,
+					gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
+					gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
+					INVALID_HANDLE,
+					&count);
+				if (status != ESP_GATT_OK){
+					ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_attr_count error");
+				}
+				if (count > 0){
+					char_elem_result = (esp_gattc_char_elem_t *)malloc(sizeof(char_elem_result) * count);
+					if (!char_elem_result){
+						ESP_LOGE(GATTC_TAG, "gattc no mem");
+					}else{
+						status = esp_ble_gattc_get_char_by_uuid( gattc_if,
+							p_data->search_cmpl.conn_id,
+							gl_profile_tab[PROFILE_A_APP_ID].service_start_handle,
+							gl_profile_tab[PROFILE_A_APP_ID].service_end_handle,
+							remote_filter_char_uuid,
+							char_elem_result,
+							&count);
+						if (status != ESP_GATT_OK){
+							ESP_LOGE(GATTC_TAG, "esp_ble_gattc_get_char_by_uuid error");
+						}
+						if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_WRITE)){
+							gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
+							esp_ble_gattc_write_char(gattc_if,
+								p_data->search_cmpl.conn_id,
+								char_elem_result[0].char_handle,
+								remote_auth_bluetooth_device_write_uuid.len,
+								(uint8_t *)remote_auth_bluetooth_device_write_uuid.uuid.uuid128,
+								ESP_GATT_WRITE_TYPE_NO_RSP,
+								ESP_GATT_AUTH_REQ_NONE);
+						}
+					}
+					/* free char_elem_result */
+					free(char_elem_result);
+				}else{
+					ESP_LOGE(GATTC_TAG, "no char found");
+				}
+			}
+		}
          break;
     case ESP_GATTC_REG_FOR_NOTIFY_EVT: {
         ESP_LOGI(GATTC_TAG, "ESP_GATTC_REG_FOR_NOTIFY_EVT");
@@ -340,11 +390,19 @@ remote_auth_bluetooth_device_char_uuid
             ESP_LOGE(GATTC_TAG, "write char failed, error status = %x", p_data->write.status);
             break;
         }
-        ESP_LOGI(GATTC_TAG, "write char success ");
+		if(auth_ble){
+			ESP_LOGI(GATTC_TAG, "write char success ");
+		}else{
+			auth_ble = true;
+			get_server = false;
+			ESP_LOGI(GATTC_TAG, "AUTH_BLUETOOTH_DEVICE success ");
+			esp_ble_gattc_search_service(gattc_if, param->cfg_mtu.conn_id, &remote_filter_shooting_contral_service_uuid);
+		}
         break;
     case ESP_GATTC_DISCONNECT_EVT:
         connect = false;
         get_server = false;
+		auth_ble = false;
         ESP_LOGI(GATTC_TAG, "ESP_GATTC_DISCONNECT_EVT, status = %d", p_data->disconnect.status);
         break;
     default:
