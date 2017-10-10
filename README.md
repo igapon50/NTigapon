@@ -6,46 +6,57 @@
 ===
 
 ## Overview
-Arduino sketch.
+Arduino sketch and ESP-IDF project.
+
 
 ## Description
 
-- Hastler
-    - 2017/7/8-9に開催されたNT金沢に出展した作品のArduino sketchである
-    - 市販品のラジコンカー（Hustler）を改造する
-    - HustlerのモーターとボディをArduinoで制御する
-    - 2017/12/16-17に開催されるNT加賀に向けて以下も実施する予定
-    - RICOH THETA SをHustlerに載せる
-    - RICOH THETA SをArduinoで制御する
-
-- Wii_servo_ESC
-    - 2017/12/16-17に開催されるNT加賀に出展する作品のArduino sketchである
-    - 市販品の組み立てラジコンカー（ROADSTER）を改造する
-    - ROADSTERのサーボとESCをArduinoで制御する
-
-- モジュール動作確認用各種スケッチ
-    - ESC
-        - ジョイスティックによるESC制御
-    - joystick
-        - ジョイスティック制御
-    - MMA7660FC
-        - 加速度センサー測定
-    - motor
-        - モーター制御
-    - optical
-        - LED制御
-    - servo
-        - ジョイスティックによるサーボ制御
-    - servo_ESC
-        - ジョイスティックによるサーボとESCの制御
-    - UltrasonicDisplayOnTerm
-        - 超音波センサ測定
-    - UltrasonicDisplayOnTerm_HS-SR04
-        - HS-SR04超音波センサ二つ測定
-    - Wii
-        - USB Host Shield & BluetoothドングルによるWiiリモコン制御
-    - wire
-        - SPI通信
+- arduino
+    - Hastler
+        - 2017/7/8-9に開催されたNT金沢に出展した作品のArduino sketchである
+        - 市販品の1/20スケールラジコンカー[Hustler](https://www.amazon.co.jp/dp/B072JSL6Z9/ref=pe_2107282_266464282_TE_3p_dp_1)を改造する
+        - Hustlerのモーター×2とLED×2に光センサーを追加し、Arduinoで制御する
+    - Wii_servo_ESC
+        - 2017/12/16-17に開催されるNT加賀に出展する作品のArduino sketchである
+        - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
+        - ROADSTERのサーボ×1とESC×1に超音波距離センサー×2を追加し、Arduinoで制御する
+    - モジュール動作確認用各種スケッチ
+        - ESC
+            - ジョイスティックによるESC制御
+        - joystick
+            - ジョイスティック制御
+        - MMA7660FC
+            - 加速度センサー測定
+        - motor
+            - モーター制御
+        - optical
+            - LED制御
+        - servo
+            - ジョイスティックによるサーボ制御
+        - servo_ESC
+            - ジョイスティックによるサーボとESCの制御
+        - UltrasonicDisplayOnTerm
+            - 超音波センサ測定
+        - UltrasonicDisplayOnTerm_HS-SR04
+            - HS-SR04超音波センサ二つ測定
+        - Wii
+            - USB Host Shield & BluetoothドングルによるWiiリモコン制御
+        - wire
+            - SPI通信
+- ESP-IDF
+    - gatt_client
+        - RICOH THETA V とBLE接続し、以下のコマンドを送信する
+            - Bluetooth Control Command の AUTH_BLUETOOTH_DEVICE に UUIDをwrite
+            - Shooting Control Command の Take Picture に 1をwrite
+    - gatt_security_client
+        - 作成中
+    - hello_world
+        - Hello worldサンプルプロジェクト
+    - http_request
+        - RICOH THETA V とWiFi接続し、以下のコマンドを送信する
+            - camera.takePicture(静止画撮影)
+            - _bluetoothPowerをON
+            - camera._setBluetoothDeviceでUUIDを登録
 
 ## Demo
 
@@ -61,15 +72,11 @@ Arduino sketch.
 
 ## Licence
 
-- Hastler Mitライセンス
-- 以下はそれぞれのライセンスを参照のこと
-    - Arduino IDEに付属するスケッチ例から以下を含む(LGPL)
-        - motor
-        - optical
-        - wire
-        - ...
-    - USB Host Shield用スケッチ例から以下を含む(LGPL)
-        - Wii
+- 全て Mitライセンスとする
+    - Hastler & Wii_servo_ESC Mitライセンス
+    - その他Arduino IDEに付属するスケッチ例(LGPL)から修正したスケッチはMitライセンス
+    - USB Host Shield用スケッチ例(LGPL)から修正したスケッチはMitライセンス
+    - ESP-IDF用サンプルprojectから修正したprojectもMitライセンス
 
 ## Author
 
