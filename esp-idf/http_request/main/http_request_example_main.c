@@ -51,7 +51,7 @@ const int CONNECTED_BIT = BIT0;
 
 static const char *TAG = "example";
 
-static const char *REQUEST1 = "POST /osc/commands/execute HTTP/1.1\r\n"
+static const char *REQUEST3 = "POST /osc/commands/execute HTTP/1.1\r\n"
 "Connection: keep-alive\r\n"
 "Content-Type: application/json\r\n"
 "Content-Length: 36\r\n"
@@ -80,7 +80,7 @@ static const char *REQUEST2 = "POST /osc/commands/execute HTTP/1.1\r\n"
 "	}\r\n"
 "}\r\n";
 
-static const char *REQUEST3 = "POST /osc/commands/execute HTTP/1.1\r\n"
+static const char *REQUEST1 = "POST /osc/commands/execute HTTP/1.1\r\n"
 "Connection: keep-alive\r\n"
 "Content-Type: application/json\r\n"
 "Content-Length: 108\r\n"
@@ -187,42 +187,43 @@ static void http_get_task(void *pvParameters)
         ESP_LOGI(TAG, "... connected");
         freeaddrinfo(res);
 
-        if (write(s, REQUEST1, strlen(REQUEST1)) < 0) {
-            ESP_LOGE(TAG, "... socket send failed");
-            close(s);
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
-            continue;
-        }
-        ESP_LOGI(TAG, "... socket send success");
 #if 1
-        struct timeval receiving_timeout;
-        receiving_timeout.tv_sec = 5;
-        receiving_timeout.tv_usec = 0;
-        if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &receiving_timeout,
-                sizeof(receiving_timeout)) < 0) {
-            ESP_LOGE(TAG, "... failed to set socket receiving timeout");
-            close(s);
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
-            continue;
-        }
-        ESP_LOGI(TAG, "... set socket receiving timeout success");
+		if (write(s, REQUEST1, strlen(REQUEST1)) < 0) {
+			ESP_LOGE(TAG, "... socket send failed");
+			close(s);
+			vTaskDelay(4000 / portTICK_PERIOD_MS);
+			continue;
+		}
+		ESP_LOGI(TAG, "... socket send success");
+		struct timeval receiving_timeout;
+		receiving_timeout.tv_sec = 5;
+		receiving_timeout.tv_usec = 0;
+		if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &receiving_timeout,
+			sizeof(receiving_timeout)) < 0) {
+				ESP_LOGE(TAG, "... failed to set socket receiving timeout");
+				close(s);
+				vTaskDelay(4000 / portTICK_PERIOD_MS);
+				continue;
+			}
+		ESP_LOGI(TAG, "... set socket receiving timeout success");
 
-        /* Read HTTP response */
-        do {
-            bzero(recv_buf, sizeof(recv_buf));
-            r = read(s, recv_buf, sizeof(recv_buf)-1);
-            for(int i = 0; i < r; i++) {
-                putchar(recv_buf[i]);
-            }
-        } while(r > 0);
+		/* Read HTTP response */
+		do {
+			bzero(recv_buf, sizeof(recv_buf));
+			r = read(s, recv_buf, sizeof(recv_buf)-1);
+			for(int i = 0; i < r; i++) {
+				putchar(recv_buf[i]);
+			}
+		} while(r > 0);
 
-        ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
+		ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
+		for(int countdown = 10; countdown >= 0; countdown--) {
+			ESP_LOGI(TAG, "%d... ", countdown);
+			vTaskDelay(1000 / portTICK_PERIOD_MS);
+		}
 #endif
-    	for(int countdown = 10; countdown >= 0; countdown--) {
-            ESP_LOGI(TAG, "%d... ", countdown);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
 
+#if 1
         if (write(s, REQUEST2, strlen(REQUEST2)) < 0) {
             ESP_LOGE(TAG, "... socket send failed");
             close(s);
@@ -230,7 +231,6 @@ static void http_get_task(void *pvParameters)
             continue;
         }
         ESP_LOGI(TAG, "... socket send success");
-#if 1
 //        struct timeval receiving_timeout;
         receiving_timeout.tv_sec = 5;
         receiving_timeout.tv_usec = 0;
@@ -253,12 +253,13 @@ static void http_get_task(void *pvParameters)
         } while(r > 0);
 
         ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
-#endif
         for(int countdown = 10; countdown >= 0; countdown--) {
             ESP_LOGI(TAG, "%d... ", countdown);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
+#endif
 
+#if 0
     	if (write(s, REQUEST3, strlen(REQUEST3)) < 0) {
             ESP_LOGE(TAG, "... socket send failed");
             close(s);
@@ -266,7 +267,6 @@ static void http_get_task(void *pvParameters)
             continue;
         }
         ESP_LOGI(TAG, "... socket send success");
-#if 1
 //        struct timeval receiving_timeout;
         receiving_timeout.tv_sec = 5;
         receiving_timeout.tv_usec = 0;
@@ -289,6 +289,10 @@ static void http_get_task(void *pvParameters)
         } while(r > 0);
 
         ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
+        for(int countdown = 10; countdown >= 0; countdown--) {
+            ESP_LOGI(TAG, "%d... ", countdown);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
 #endif
 
     	close(s);

@@ -45,6 +45,7 @@
 //AUTH_BLUETOOTH_DEVICE_CHARA_UUID
 #define REMOTE_NOTIFY_CHAR_UUID    {0xc3,0x13,0xdc,0x98,0xf0,0xe2,0x4f,0xa8,0xa2,0x40,0x0f,0x0e,0xf0,0xb2,0xaf,0xeb,}
 #define REMOTE_AUTH_BLUETOOTH_DEVICE_WRITE_UUID    {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,}
+#define TEST_UUID "00000000-0000-0000-0000-000000000000"
 
 //Shooting Control
 //1D0F3602-8DFB-4340-9045513040DAD991
@@ -233,15 +234,24 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
 						if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_WRITE)){
 							gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
 							ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step6");
-							uint8_t value = 0x1;
-							esp_ble_gattc_write_char(gattc_if,
+#if 1
+							int8_t svalue = 1;
+							uint8_t value = (uint8_t)svalue;
+#else
+							uint8_t value = 1;
+#endif
+							status = esp_ble_gattc_write_char(gattc_if,
 								p_data->search_cmpl.conn_id,
 								char_elem_result[0].char_handle,
 								sizeof(value),
 								&value,
 								ESP_GATT_WRITE_TYPE_NO_RSP,
 								ESP_GATT_AUTH_REQ_NONE);
-							ESP_LOGI(GATTC_TAG, "ESP_GATTC_SEARCH_CMPL_EVT - step7");
+							if (status != ESP_GATT_OK){
+								ESP_LOGE(GATTC_TAG, "esp_ble_gattc_write_char error");
+							}else{
+								ESP_LOGE(GATTC_TAG, "esp_ble_gattc_write_char OK");
+							}
 						}
 					}
 					/* free char_elem_result */
@@ -280,13 +290,23 @@ static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
 						}
 						if (count > 0 && (char_elem_result[0].properties & ESP_GATT_CHAR_PROP_BIT_WRITE)){
 							gl_profile_tab[PROFILE_A_APP_ID].char_handle = char_elem_result[0].char_handle;
-							esp_ble_gattc_write_char(gattc_if,
+							status = esp_ble_gattc_write_char(gattc_if,
 								p_data->search_cmpl.conn_id,
 								char_elem_result[0].char_handle,
+#if 1
+								sizeof(TEST_UUID),
+								(uint8_t *)TEST_UUID,
+#else
 								remote_auth_bluetooth_device_write_uuid.len,
 								(uint8_t *)remote_auth_bluetooth_device_write_uuid.uuid.uuid128,
+#endif
 								ESP_GATT_WRITE_TYPE_NO_RSP,
 								ESP_GATT_AUTH_REQ_NONE);
+							if (status != ESP_GATT_OK){
+								ESP_LOGE(GATTC_TAG, "esp_ble_gattc_write_char error");
+							}else{
+								ESP_LOGE(GATTC_TAG, "esp_ble_gattc_write_char OK");
+							}
 						}
 					}
 					/* free char_elem_result */
