@@ -23,6 +23,8 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
+#define AUTH_UUID "00000000-0000-0000-0000-000000000000"
+#include "thetav2_1.h"
 
 #define THETA_DEVICE_NAME "00101594"
 //#define EXAMPLE_WIFI_SSID CONFIG_WIFI_SSID
@@ -38,60 +40,8 @@ static EventGroupHandle_t wifi_event_group;
    to the AP with an IP? */
 const int CONNECTED_BIT = BIT0;
 
-/* Constants that aren't configurable in menuconfig */
-//#define WEB_SERVER "example.com"
-#define WEB_SERVER "192.168.1.1"
-#define WEB_PORT "80"
-
-#define AUTH_UUID "00000000-0000-0000-0000-000000000000"
 static bool wifi_register_uuid    = false;
 static const char *WIFI_TAG = "WiFi-THETA";
-
-#if 0
-static const char *REQUEST_MAIN_takePicture = "{\r\n"
-"	\"name\":\"camera.takePicture\"\r\n"
-"}\r\n";
-#endif
-
-static const char *REQUEST_MAIN_getOptions__bluetoothPower = "{\r\n"
-"	\"name\":\"camera.getOptions\",\r\n"
-"	\"parameters\":{\r\n"
-"		\"optionNames\":[\r\n"
-"			\"_bluetoothPower\",\r\n"
-"			\"_bluetoothPowerSupport\"\r\n"
-"		]\r\n"
-"	}\r\n"
-"}\r\n";
-
-static const char *REQUEST_MAIN_setOptions__bluetoothPower = "{\r\n"
-"	\"name\":\"camera.setOptions\",\r\n"
-"	\"parameters\":{\r\n"
-"		\"options\":{\r\n"
-"			\"_bluetoothPower\":\"ON\"\r\n"
-"		}\r\n"
-"	}\r\n"
-"}\r\n";
-
-static const char *REQUEST_MAIN_setBluetoothDevice = "{\r\n"
-"	\"name\":\"camera._setBluetoothDevice\",\r\n"
-"	\"parameters\":{\"uuid\":\""AUTH_UUID"\"}\r\n"
-"}\r\n";
-
-void margeString_POST_Request(char *dststr, size_t dstlen, const char *str1){
-	static const char *REQUEST_HEADER_1 = "POST /osc/commands/execute HTTP/1.1\r\n"
-	"Connection: keep-alive\r\n"
-	"Content-Type: application/json\r\n"
-	"Content-Length: ";
-	static const char *REQUEST_HEADER_2 = "\r\nHost: "WEB_SERVER"\r\n"
-	"User-Agent: Apache-HttpClient/4.5.3 (Java/1.8.0_144)\r\n"
-	"Authorization: Basic cmVjZXB0b3I6cmVjZXB0b3I=\r\n"
-	"\r\n";
-
-	//パラメータノーチェック
-	size_t length = strlen(str1);
-	snprintf(dststr, dstlen, "%s%d%s%s", REQUEST_HEADER_1, length, REQUEST_HEADER_2, str1);
-	return;
-}
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
