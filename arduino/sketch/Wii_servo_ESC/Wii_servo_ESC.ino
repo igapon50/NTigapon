@@ -1,6 +1,6 @@
 #include <Wii.h>
 #include <usbhub.h>
-//#include <Wire.h>
+#include <Wire.h>
 #include <Servo.h>
 #include "TwoButtonControlMotor.h"
 
@@ -26,7 +26,7 @@ bool printAngle;
 // Arduino Pinアサインと定義
 //   D0とD1は、シリアル通信に使用する
 //   D8～D13は、USB Host Sheildに使用する
-//   A4とA5は、SPI通信に使用する
+//   A4とA5は、I2C通信に使用する
 //   上記以外ではD2～D7が使用可能である
 //   PWMは、5番, 6番Pinは977Hz(1ms周期), 9番,10番PINは490Hz, 3番,11番PINも490Hz(2ms周期)となっている
 //   Vrefに用いるPIN番号は
@@ -53,23 +53,19 @@ TwoButtonControlMotor moterspeed,servoangle;
 
 double getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
 {
-  double l_Duration = 0; //受信した間隔
+  unsigned long l_Duration = 0; //受信した間隔
   double l_Distance = 0; //距離
   digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   digitalWrite(trigPin, HIGH); //超音波を出力
-  delayMicroseconds(10); //
+  delayMicroseconds(11); //
   digitalWrite(trigPin, LOW);
   l_Duration = pulseIn(echoPin, HIGH); //センサからの入力
-  if(l_Duration > 0){
-    l_Duration = l_Duration/2; //往復距離を半分にする
-    l_Distance = l_Duration*340*100/1000000; // 音速を340m/sに設定
-    Serial.print("\tDistance = ");
-    Serial.print(l_Distance);
-    Serial.print(" cm");
-    return(l_Distance);
-  }
-  return(0.0);
+  l_Distance = l_Duration*0.017;// 340*100/1000000/2=0.017 往復距離を半分にして音速を340m/sで計算
+//  Serial.print("\tDistance = ");
+//  Serial.print(l_Distance);
+//  Serial.print(" cm");
+  return(l_Distance);
 }
 
 void setup()
@@ -95,6 +91,7 @@ void setup()
     while (1); //halt
   }
   Serial.print(F("\r\nWiimote Bluetooth Library Started"));
+  Wire.begin(); // join i2c bus (address optional for master)
 }
 void loop()
 {
@@ -160,31 +157,31 @@ void loop()
         oldtime = millis();
       }
 
-      //衝突回避
+      //超音波センサーで距離を測って衝突回避(緊急停止)
       if(l_getval < l_stopval){ //前進時
         double Distance = 0; //距離
         Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
         if(Distance < front_limit_Distance){
           esc.write(moterspeed.QuickStop());
-          Wii.setRumbleOn();
+//          Wii.setRumbleOn();
 //          analogWrite(front_light, 0);
 //          analogWrite(back_light, 0);
-        }else{
-          Wii.setRumbleOff();
+//        }else{
+//          Wii.setRumbleOff();
         }
       }else if(l_getval > l_stopval){ //後進時
         double Distance = 0; //距離
         Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
         if(Distance < back_limit_Distance){
           esc.write(moterspeed.QuickStop());
-          Wii.setRumbleOn();
+//          Wii.setRumbleOn();
 //          analogWrite(front_light, 0);
 //          analogWrite(back_light, 0);
-        }else{
-          Wii.setRumbleOff();
+//        }else{
+//          Wii.setRumbleOff();
         }
-      }else{
-        Wii.setRumbleOff();
+//      }else{
+//        Wii.setRumbleOff();
       }
 
       //ステアリング調整
@@ -246,12 +243,25 @@ void loop()
       Serial.print(F("\tmoterspeed = "));
       Serial.print(moterspeed.getValue());
 
-#if 0
-      if (Wii.getButtonPress(A)) {
+      //Aボタンクリック時I2Cに送信
+      if (Wii.getButtonClick(A)) {
         printAngle = !printAngle;
-        Serial.print(F("\r\nA"));
-      }
+        Serial.print(F("\r\n---------- A ----------"));
+//        analogWrite(front_light, 255);
+//        analogWrite(back_light, 255);
+        Wire.beginTransmission(8); // transmit to device #8
+        Wire.write('A');              // sends one byte
+        Wire.endTransmission();    // stop transmitting
+#if 0
+      }else{//それ以外の時は光センサーの値によってライトを点灯/消灯制御する
+        int sensorValue = analogRead(sensor_light);
+        if(sensorValue < 800){
+          analogWrite(front_light, 0);
+        }else{
+          analogWrite(front_light, 255);
+        }
 #endif
+      }
     }
   }
 }
