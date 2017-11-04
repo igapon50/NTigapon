@@ -13,12 +13,13 @@ Arduino sketch and ESP-IDF project.
 
 - arduino
     - Hastler
-        - 2017/7/8-9に開催されたNT金沢に出展した作品のArduino sketchである
+        - 2017/7/8-9に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22017)に出展した作品のArduino sketchである
+        - 簡単な紹介は[こちら](https://1drv.ms/p/s!AnC3THzAcjDOgTi-qVfNM3mMPAdq)参照のこと
         - 市販品の1/20スケールラジコンカー[Hustler](https://www.amazon.co.jp/dp/B072JSL6Z9/ref=pe_2107282_266464282_TE_3p_dp_1)を改造する
         - Hustlerのモーター×2とLED×2に光センサーを追加し、Arduinoで制御する
         - WiiリモコンのUP(ステアリング左)/DOWN(ステアリング右)/1(加速)/2(減速)ボタンを使用する
     - Wii_servo_ESC
-        - 2017/12/16-17に開催されるNT加賀に出展する作品のArduino sketchである
+        - 2017/12/16-17に開催される[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展する作品のArduino sketchである
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
         - ROADSTERにサーボ×1とESC×1と超音波距離センサー×2を追加し、Arduinoで制御する
         - Wiiリモコン
