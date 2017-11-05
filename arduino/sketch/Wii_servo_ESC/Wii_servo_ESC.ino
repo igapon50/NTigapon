@@ -21,7 +21,7 @@ bool printAngle;
 // Arduino Pinアサインと定義
 //   D0とD1は、シリアル通信に使用する
 //   D8～D13は、USB Host Sheildに使用する
-//   A4とA5は、I2C通信に使用する
+//   A4(SDA)とA5(SCL)は、I2C通信に使用する
 //   上記以外ではD2～D7が使用可能である
 //   PWMは、5番, 6番Pinは977Hz(1ms周期), 9番,10番PINは490Hz, 3番,11番PINも490Hz(2ms周期)となっている
 //   Vrefに用いるPIN番号は
