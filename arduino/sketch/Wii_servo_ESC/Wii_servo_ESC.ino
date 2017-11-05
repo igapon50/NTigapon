@@ -4,11 +4,6 @@
 #include <Servo.h>
 #include "TwoButtonControlMotor.h"
 
-//#ifdef dobogusinclude
-//#include <spi4teensy3.h>
-//#include <SPI.h>
-//#endif
-
 USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimote - you only have to do this once
