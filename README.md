@@ -14,10 +14,27 @@ Arduino sketch and ESP-IDF project.
 - arduino
     - Hastler
         - 2017/7/8-9に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22017)に出展した作品のArduino sketchである
-        - 簡単な紹介は[こちら](https://1drv.ms/p/s!AnC3THzAcjDOgTi-qVfNM3mMPAdq)参照のこと
+        - 簡単な紹介は[NT金沢向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTi-qVfNM3mMPAdq)参照のこと
         - 市販品の1/20スケールラジコンカー[Hustler](https://www.amazon.co.jp/dp/B072JSL6Z9/ref=pe_2107282_266464282_TE_3p_dp_1)を改造する
         - Hustlerのモーター×2とLED×2に光センサーを追加し、Arduinoで制御する
         - WiiリモコンのUP(ステアリング左)/DOWN(ステアリング右)/1(加速)/2(減速)ボタンを使用する
+        - NT加賀向けにFritzing回路図を用意した
+            - arduino_mini_pro.fzz
+            - arduino_uno.fzz
+        - 回路図の電源は以下を参照のこと
+            - arduino Uno(5V)の電源
+                - 7-12VならそのままVinにInput、R5は短絡
+                - 5.25-7VはVCC3にInputと、DC-DC降圧回路で5Vにしてarduinoの5V PINにInput
+                    - 単3電池×4
+                - 4.75V以下はDC-DC昇圧回路で5Vにしてarduinoの5V PINにInput、R5は短絡
+                    - 単3電池×3
+                - USB接続は4.75-5.25Vでarduinoの5V PINにInput相当、R5は短絡
+            - arduino pro mini(3.3V)の電源
+                - VCC1に電源を接続し、DC-INとDC-OUTを使用して外部にDC-DC回路を接続する
+                    - 5.25V以上はDC-DC降圧回路で5VにしてRAWにInput、R5は短絡
+                        - 単3電池×4
+                    - 4.75V以下はDC-DC昇圧回路で5VにしてRAWにInputとR5の回路側に接続
+                        - 単3電池×3
     - Wii_servo_ESC
         - 2017/12/16-17に開催される[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展する作品のArduino sketchである
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
@@ -57,6 +74,8 @@ Arduino sketch and ESP-IDF project.
         - wire
             - I2C通信
 - ESP-IDF
+    - esp32_theta
+        - RICOH THETAとWi-Fi接続し、I2Cから'A'を受け取ると、OSC V2.1 WebAPIでTakePicture(静止画撮影)を送信する
     - gatt_client
         - RICOH THETA V とBLE接続し、以下のコマンドを送信する
             - Bluetooth Control Command の AUTH_BLUETOOTH_DEVICE に UUIDをwrite
