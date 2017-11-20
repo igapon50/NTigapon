@@ -26,7 +26,7 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 bool printAngle;
 byte x = 0;
 unsigned int checkcount = 0;
-#define CONNECTION_TIMEOUT 5
+#define CONNECTION_TIMEOUT (50/*タイムアウト判断するチェック回数*/)
 float older_pitch = 0.0;//切断検出用
 float older_roll = 0.0;//切断検出用
 const int sensor_light = A0;
