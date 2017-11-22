@@ -137,11 +137,5 @@ void loop() {
         }
       }
     }
-  }else{
-    //接続が切れたとき動作を停止する
-    hastler_moter_front(STOP_MOTER_VAL);
-    hastler_moter_back(STOP_MOTER_VAL);
-    analogWrite(front_light, 0);
-    analogWrite(back_light, 0);
   }
 }
