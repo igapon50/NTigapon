@@ -46,21 +46,22 @@ TwoButtonControlMotor moterspeed,servoangle;
 #define back_limit_Distance 30 // 後方の障害物までの距離がこれより近づくと停止する[cm]
 //---------------------------
 
-double getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
+int getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
 {
-  unsigned long l_Duration = 0; //受信した間隔
-  double l_Distance = 0; //距離
+  float l_Distance = 0; //受信した間隔,距離
   digitalWrite(trigPin, LOW);
   delayMicroseconds(1);
   digitalWrite(trigPin, HIGH); //超音波を出力
   delayMicroseconds(11); //
   digitalWrite(trigPin, LOW);
-  l_Duration = pulseIn(echoPin, HIGH); //センサからの入力
-  l_Distance = l_Duration*0.017;// 340*100/1000000/2=0.017 往復距離を半分にして音速を340m/sで計算
+  l_Distance = pulseIn(echoPin, HIGH); //センサからの入力
+  // 340*100/1000000/2=0.017 往復距離を半分にして音速を340m/sで計算
+  // 1/0.017=58.8 四捨五入して59
+  l_Distance = l_Distance/59;
 //  Serial.print("\tDistance = ");
 //  Serial.print(l_Distance);
 //  Serial.print(" cm");
-  return(l_Distance);
+  return((int)l_Distance);
 }
 
 void setup()
@@ -110,18 +111,17 @@ void loop()
       steeringValue = map(constrain(newer_pitch, 100, 260),260,100,servoangle.getMinval(),servoangle.getMaxval());
 //      Serial.print(F("\t\npitch = "));
 //      Serial.print(newer_pitch);
-      //コネクション切断検出用チェック処理
-      //駆動時だけチェックする
+      // Wiiリモコン切断検出用チェック処理(駆動時だけチェック)
       int l_stopval = moterspeed.getStopval();
       int l_getval = moterspeed.getValue();
       if(l_getval != l_stopval){
         static float newer_roll = 0.0;
         static float older_roll = 0.0;//切断検出用
-//        static float newer_yaw = 0.0;//Wii PLUSでのみ検出可能、未使用
+//        static float newer_yaw = 0.0;//WiiリモコンPLUSでのみ検出可能(未使用)
         newer_roll = Wii.getRoll();
 //        newer_yaw = Wii.getYaw();
-        Serial.print(F("\troll = "));
-        Serial.print(newer_roll);
+//        Serial.print(F("\troll = "));
+//        Serial.print(newer_roll);
 //        Serial.print(F("\tyaw = "));
 //        Serial.print(newer_yaw);
         if( older_pitch == newer_pitch && older_roll == newer_roll ){
@@ -154,7 +154,7 @@ void loop()
 
       //超音波センサーで距離を測って衝突回避(緊急停止)
       if(l_getval < l_stopval){ //前進時
-        double Distance = 0; //距離
+        int Distance = 0; //距離
         Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
         if(Distance < front_limit_Distance){
           esc.write(moterspeed.QuickStop());
@@ -165,7 +165,7 @@ void loop()
 //          Wii.setRumbleOff();
         }
       }else if(l_getval > l_stopval){ //後進時
-        double Distance = 0; //距離
+        int Distance = 0; //距離
         Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
         if(Distance < back_limit_Distance){
           esc.write(moterspeed.QuickStop());
