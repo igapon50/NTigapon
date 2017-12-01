@@ -179,26 +179,6 @@ void loop()
 //        Wii.setRumbleOff();
       }
 
-      //ステアリング調整
-      if (Wii.getButtonClick(PLUS)){
-        servoangle.upTrim();
-        Serial.print(F("\r\nPlus"));
-      }
-      if (Wii.getButtonClick(MINUS)){
-        servoangle.downTrim();
-        Serial.print(F("\r\nMinus"));
-      }
-
-      //ステアリング制御方式切り替え
-      if (Wii.getButtonClick(B)){
-        if (steeringtypePitch){
-          steeringtypePitch = false;
-        }else{
-          steeringtypePitch = true;
-        }
-        Serial.print(F("\r\nB"));
-      }
-
       //ステアリング制御
       if(steeringtypePitch){
         Serial.print(F("\r\nPitch"));
@@ -238,8 +218,20 @@ void loop()
       Serial.print(F("\tmoterspeed = "));
       Serial.print(moterspeed.getValue());
 
-      //Aボタンクリック時I2Cに送信
-      if (Wii.getButtonClick(A)) {
+      if(Wii.getButtonClick(PLUS)){ //ステアリング調整
+        servoangle.upTrim();
+        Serial.print(F("\r\nPlus"));
+      }else if(Wii.getButtonClick(MINUS)){ //ステアリング調整
+        servoangle.downTrim();
+        Serial.print(F("\r\nMinus"));
+      }else if(Wii.getButtonClick(B)){ //ステアリング制御方式切り替え
+        if(steeringtypePitch){
+          steeringtypePitch = false;
+        }else{
+          steeringtypePitch = true;
+        }
+        Serial.print(F("\r\nB"));
+      }else if(Wii.getButtonClick(A)){ //Aボタンクリック時I2Cに送信
         printAngle = !printAngle;
         Serial.print(F("\r\n---------- A ----------"));
 //        analogWrite(front_light, 255);
