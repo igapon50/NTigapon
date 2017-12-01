@@ -1,5 +1,8 @@
 @echo off
-echo switch-science PCB注文向けFritzingファイル名変換バッチ
+echo PCB注文向けFritzingファイル名変換バッチ
+echo seeed(Fusion)の発注には使用できた
+echo https://www.fusionpcb.jp/index.html
+echo switch-scienceの発注には使用できなかった
 echo https://www.switch-science.com/
 if "%1"=="" goto usage
 echo (注 %1には半角英数記号を用いること)
