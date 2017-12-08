@@ -42,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-  static int val_front = STOP_MOTER_VAL,val_back = STOP_MOTER_VAL;
+  static int val_front = STOP_MOTER_VAL, val_back = STOP_MOTER_VAL, val_step = 5;
   Usb.Task();
   if (Wii.wiimoteConnected) {
     if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
@@ -56,8 +56,8 @@ void loop() {
       }
       Wii.disconnect();
     }else{
+      static unsigned int checkcount = 0;
       if(val_back != STOP_MOTER_VAL){ //駆動時だけチェックする
-        static unsigned int checkcount = 0;
         float newer_pitch,newer_roll;
         newer_pitch = Wii.getPitch();
         newer_roll = Wii.getRoll();
@@ -99,21 +99,21 @@ void loop() {
         Serial.print(F("\r\nDown"));
         analogWrite(back_light, 0);
         if(0 < val_back){
-          hastler_moter_back(--val_back);
+          hastler_moter_back(val_back-=val_step);
         }
       }else if(Wii.getButtonPress(Hastler_front)){ //駆動制御加速
         Serial.print(F("\r\nUp"));
         analogWrite(back_light, 0);
         if(val_back < MAX_MOTER_VAL){
-          hastler_moter_back(++val_back);
+          hastler_moter_back(val_back+=val_step);
         }
       }else{ //駆動制御中立
         Serial.print(F("\r\n"));
         analogWrite(back_light, 255);
         if(val_back <= STOP_MOTER_VAL){
-          hastler_moter_back(++val_back);
+          hastler_moter_back(val_back+=val_step);
         }else{
-          hastler_moter_back(--val_back);
+          hastler_moter_back(val_back-=val_step);
         }
       }
 

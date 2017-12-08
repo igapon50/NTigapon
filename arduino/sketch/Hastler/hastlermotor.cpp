@@ -18,16 +18,19 @@ void hastler_motor_init(){
 }
 
 void hastler_moter_front(const int val = STOP_MOTER_VAL){
+	int val_front;
 	if(val < MIN_MOTER_VAL){
 		Serial.print("\nhastler_moter_front input val = ");
 		Serial.println(val);
-		val = MIN_MOTER_VAL;
+		val_front = MIN_MOTER_VAL;
 	}else if(MAX_MOTER_VAL < val){
 		Serial.print("\nhastler_moter_front input val = ");
 		Serial.println(val);
-		val = MAX_MOTER_VAL;
+		val_front = MAX_MOTER_VAL;
+	}else{
+		val_front = val;
 	}
-	int val_front = val;
+
 	Serial.print(" val_front = ");
 	Serial.print(val_front);
 	//前輪
@@ -52,16 +55,19 @@ void hastler_moter_front(const int val = STOP_MOTER_VAL){
 }
 
 void hastler_moter_back(const int val = STOP_MOTER_VAL){
+	int val_back;
 	if(val < MIN_MOTER_VAL){
 		Serial.print("\nhastler_moter_back input val = ");
 		Serial.println(val);
-		val = MIN_MOTER_VAL;
+		val_back = MIN_MOTER_VAL;
 	}else if(MAX_MOTER_VAL < val){
 		Serial.print("\nhastler_moter_back input val = ");
 		Serial.println(val);
-		val = MAX_MOTER_VAL;
+		val_back = MAX_MOTER_VAL;
+	}else{
+		val_back = val;
 	}
-	int val_back = val;
+
 	Serial.print(" val_back = ");
 	Serial.print(val_back);
 	//後輪
