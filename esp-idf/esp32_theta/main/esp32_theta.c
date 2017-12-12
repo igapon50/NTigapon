@@ -21,9 +21,11 @@
 #define AUTH_UUID "00000000-0000-0000-0000-000000000000"
 #include "thetav2_1.h"
 
-#define THETA_DEVICE_NAME "00101594"
+//#define THETA_DEVICE_NAME "00101594"
+#define THETA_DEVICE_NAME "00111871"
 //#define EXAMPLE_WIFI_SSID CONFIG_WIFI_SSID
-#define EXAMPLE_WIFI_SSID "THETAYL"THETA_DEVICE_NAME".OSC"
+//#define EXAMPLE_WIFI_SSID "THETAYL"THETA_DEVICE_NAME".OSC"
+#define EXAMPLE_WIFI_SSID "THETAXS"THETA_DEVICE_NAME".OSC"
 //#define EXAMPLE_WIFI_PASS CONFIG_WIFI_PASSWORD
 #define EXAMPLE_WIFI_PASS THETA_DEVICE_NAME
 
@@ -97,9 +99,12 @@ bool initialize_requests(int socket){
 	char recv_buf[64];
 	char buffer[1024] = {'\0'};
 	const char *requests[] = {
-		REQUEST_MAIN_setBluetoothDevice,
-		REQUEST_MAIN_setOptions__bluetoothPower,
-		REQUEST_MAIN_getOptions__bluetoothPower,
+		REQUEST_MAIN_startSession,
+		REQUEST_MAIN_clientVersion,
+//		REQUEST_MAIN_closeSession,
+//		REQUEST_MAIN_setBluetoothDevice,
+//		REQUEST_MAIN_setOptions__bluetoothPower,
+//		REQUEST_MAIN_getOptions__bluetoothPower,
 //		REQUEST_MAIN_takePicture,
 		NULL
 	};
@@ -226,9 +231,9 @@ static void http_task(void *pvParameters)
 		ESP_LOGI(WIFI_TAG, "... connected");
 		freeaddrinfo(res);
 
-//		if(false == initialize_requests(socket)){
-//			continue;
-//		}
+		if(false == initialize_requests(socket)){
+			continue;
+		}
 		wifi_register_uuid = true;
 		while(wifi_register_uuid){
 			uint8_t data[DATA_LENGTH] = {'\0'};

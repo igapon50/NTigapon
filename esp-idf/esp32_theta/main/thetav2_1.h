@@ -11,6 +11,28 @@ static const char *REQUEST_MAIN_takePicture = "{\r\n"
 "	\"name\":\"camera.takePicture\"\r\n"
 "}\r\n";
 
+static const char *REQUEST_MAIN_closeSession = "{\r\n"
+"	\"name\":\"camera.closeSession\",\r\n"
+"	\"parameters\":{\r\n"
+"		\"sessionId\": \"SID_0001\"\r\n"
+"	}\r\n"
+"}\r\n";
+
+static const char *REQUEST_MAIN_clientVersion = "{\r\n"
+"	\"name\":\"camera.setOptions\",\r\n"
+"	\"parameters\":{\r\n"
+"		\"sessionId\": \"SID_0001\",\r\n"
+"		\"options\":{\r\n"
+"			\"clientVersion\": 2\r\n"
+"		}\r\n"
+"	}\r\n"
+"}\r\n";
+
+static const char *REQUEST_MAIN_startSession = "{\r\n"
+"	\"name\":\"camera.startSession\",\r\n"
+"	\"parameters\":{}\r\n"
+"}\r\n";
+
 static const char *REQUEST_MAIN_getOptions__bluetoothPower = "{\r\n"
 "	\"name\":\"camera.getOptions\",\r\n"
 "	\"parameters\":{\r\n"
