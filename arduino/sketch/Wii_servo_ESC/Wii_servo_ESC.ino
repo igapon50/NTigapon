@@ -1,19 +1,22 @@
 #include <Wii.h>
 #include <usbhub.h>
-#include <Wire.h>
-#include <Servo.h>
-#include "TwoButtonControlMotor.h"
-
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
-#include <SPI.h>
 #endif
+#include <SPI.h>
+#include <Wire.h>
+#include <Servo.h>
+#include "TwoButtonControlMotor.h"
 
 USB Usb;
 BTD Btd(&Usb); // You have to create the Bluetooth Dongle instance like so
 WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimote - you only have to do this once
 
+#define SILENT /* 有効にするとシリアルに出力しない */
+#ifndef SILENT
+#define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
+#endif
 #define VERSION_STRING "0.0.4"
 #define CONNECTION_TIMEOUT_COUNT (50/*Wiiリモコンとの接続タイムアウトチェック回数*/)
 #define EMERGENCY_STOP_COUNT (100/*緊急停止後の復帰タイムアウトチェック回数*/)
@@ -67,8 +70,10 @@ int getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
 
 void setup()
 {
+#ifndef SILENT
   Serial.begin(115200);
-  Serial.print(F(__DATE__ "/" __TIME__ "/" VERSION_STRING));
+  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+#endif
   pinMode(front_trigPin, OUTPUT);
   pinMode(front_echoPin, INPUT);
   pinMode(back_trigPin, OUTPUT);
@@ -84,10 +89,14 @@ void setup()
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
   if (Usb.Init() == -1) {
+#ifndef SILENT
     Serial.print(F("\r\nOSC did not start"));
+#endif
     while (1); //halt
   }
+#ifndef SILENT
   Serial.print(F("\r\nWiimote Bluetooth Library Started"));
+#endif
   Wire.begin(); // join i2c bus (address optional for master)
 }
 void loop()
@@ -95,7 +104,9 @@ void loop()
   Usb.Task();
   if(Wii.wiimoteConnected){
     if(Wii.getButtonClick(HOME)){ // You can use getButtonPress to see if the button is held down
+#ifndef SILENT
       Serial.print(F("\r\nHOME"));
+#endif
       //接続が切れたとき動作を停止する
       esc.write(moterspeed.QuickStop());
       Wii.disconnect();
@@ -105,58 +116,81 @@ void loop()
       static unsigned int stopcount = 0;
       static unsigned long stoptime = 0;
       static unsigned int checkcount = 0;
+#ifdef DEBUG
       static unsigned long oldtime = 0;
-
+#endif
       // Wiiリモコン切断検出用チェック処理
       static float newer_pitch = 0.0;
       static float older_pitch = 0.0; //切断検出用
       newer_pitch = Wii.getPitch(); //こちらはステアリングにも使う、右100-左260の範囲を使用
+#ifdef DEBUG
 //      Serial.print(F("\t\npitch = "));
 //      Serial.print(newer_pitch);
+#endif
       int l_stopval = moterspeed.getStopval();
       int l_getval = moterspeed.getValue();
       if(l_getval != l_stopval){ //駆動時だけチェックする
+#ifdef DEBUG
         static float newer_roll = 0.0;
         static float older_roll = 0.0;//切断検出用
         newer_roll = Wii.getRoll();
 //        Serial.print(F("\troll = "));
 //        Serial.print(newer_roll);
         if(older_pitch == newer_pitch && older_roll == newer_roll){ //値に変化なし
+#else
+        if(older_pitch == newer_pitch){ //値に変化なし
+#endif
           checkcount++;
           if(CONNECTION_TIMEOUT_COUNT < checkcount){ //規定回数に達したら切断処理する
             esc.write(moterspeed.QuickStop());
+#ifdef DEBUG
             Serial.print(F("\r\nesc QuickStop Timeout"));
-            checkcount = 0;
             oldtime = millis();
+#endif
+            checkcount = 0;
             Wii.disconnect();
             return;
           }
+#ifdef DEBUG
           Serial.print(F("\tcheckcount = "));
           Serial.print(checkcount);
           Serial.print(F("\ttime = "));
           Serial.print(millis() - oldtime);
+#endif
         }else{ //値に変化あり
           older_pitch = newer_pitch;
+#ifdef DEBUG
           older_roll = newer_roll;
-          checkcount = 0;
           oldtime = millis();
+#endif
+          checkcount = 0;
         }
       }else{ //停止時はノーチェックでカウントをクリア
         checkcount = 0;
+#ifdef DEBUG
         oldtime = millis();
+#endif
       }
 
       if(Wii.getButtonClick(PLUS)){ //ステアリング調整
+#ifndef SILENT
         Serial.print(F("\r\nPlus"));
+#endif
         servoangle.upTrim();
       }else if(Wii.getButtonClick(MINUS)){ //ステアリング調整
+#ifndef SILENT
         Serial.print(F("\r\nMinus"));
+#endif
         servoangle.downTrim();
       }else if(Wii.getButtonClick(B)){ //ステアリング制御方式切り替え
+#ifndef SILENT
         Serial.print(F("\r\nB"));
+#endif
         steeringtypePitch = !steeringtypePitch;
       }else if(Wii.getButtonClick(A)){ //Aボタンクリック時I2Cに送信
+#ifndef SILENT
         Serial.print(F("\r\nA"));
+#endif
         Wire.beginTransmission(8); // transmit to device #8
         Wire.write('A');           // sends one byte
         Wire.endTransmission();    // stop transmitting
@@ -164,36 +198,48 @@ void loop()
 
       //ステアリング制御
       if(steeringtypePitch){
-        Serial.print(F("\r\nPitch"));
         int steeringValue = map(constrain(newer_pitch, 100, 260),260,100,servoangle.getMinval(),servoangle.getMaxval());
         servoangle.setValue(steeringValue);
         servo.write(servoangle.getValue());
+#ifdef DEBUG
+        Serial.print(F("\r\nPitch"));
         Serial.print(F("\tservoangle = "));
         Serial.print(servoangle.getValue());
+#endif
       }else{
         if (Wii.getButtonPress(ButtonPress_left)) {
+#ifdef DEBUG
           Serial.print(F("\r\nLeft"));
+#endif
           servo.write(--servoangle);
         }else if (Wii.getButtonPress(ButtonPress_right)) {
+#ifdef DEBUG
           Serial.print(F("\r\nRight"));
+#endif
           servo.write(++servoangle);
         }else{
+#ifdef DEBUG
           Serial.print(F("\r\nNON"));
+#endif
           servo.write(servoangle.Stop());
         }
+#ifdef DEBUG
         Serial.print(F("\tservoangle = "));
         Serial.print(servoangle.getValue());
+#endif
       }
 
       //超音波センサーで距離を測って衝突回避、緊急停止中はreturnする
       if(l_stopval < l_getval){ //前進時
         int Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
         if(Distance < front_limit_Distance){ //緊急停止チェック
-          Serial.print(F("\r\nEMERGENCY_STOP front = "));
-          Serial.print(Distance);
           emergency_stop = true;
           stopcount = 0;
+#ifdef DEBUG
+          Serial.print(F("\r\nEMERGENCY_STOP front = "));
+          Serial.print(Distance);
           stoptime = millis();
+#endif
           Wii.setRumbleOn();
           esc.write(moterspeed.QuickStop());
           return;
@@ -201,11 +247,13 @@ void loop()
       }else if(l_getval < l_stopval){ //後進時
         int Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
         if(Distance < back_limit_Distance){ //緊急停止チェック
-          Serial.print(F("\r\nEMERGENCY_STOP back = "));
-          Serial.print(Distance);
           emergency_stop = true;
           stopcount = 0;
+#ifdef DEBUG
+          Serial.print(F("\r\nEMERGENCY_STOP back = "));
+          Serial.print(Distance);
           stoptime = millis();
+#endif
           Wii.setRumbleOn();
           esc.write(moterspeed.QuickStop());
           return;
@@ -215,10 +263,12 @@ void loop()
           stopcount++;
           if(EMERGENCY_STOP_COUNT < stopcount){ //規定回数に達したら回復処理する
             emergency_stop = false;
+#ifdef DEBUG
             Serial.print(F("\tstopcount = "));
             Serial.print(stopcount);
             Serial.print(F("\ttime = "));
             Serial.print(millis() - stoptime);
+#endif
             Wii.setRumbleOff();
           }else{
             return;
@@ -228,17 +278,25 @@ void loop()
 
       //駆動力制御
       if (Wii.getButtonPress(ButtonPress_back)) {
+#ifdef DEBUG
         Serial.print(F("\tBACK"));
+#endif
         esc.write(--moterspeed);
       }else if (Wii.getButtonPress(ButtonPress_front)) {
+#ifdef DEBUG
         Serial.print(F("\tFRONT"));
+#endif
         esc.write(++moterspeed);
       }else{
+#ifdef DEBUG
         Serial.print(F("\tNON"));
+#endif
         esc.write(moterspeed.Stop());
       }
+#ifdef DEBUG
       Serial.print(F("\tmoterspeed = "));
       Serial.print(moterspeed.getValue());
+#endif
     }
   }
 }
