@@ -3,8 +3,8 @@
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
-#endif
 #include <SPI.h>
+#endif
 #include <Wire.h>
 #include "hastlermotor.h"
 
@@ -56,7 +56,7 @@ void loop() {
   if (Wii.wiimoteConnected) {
     if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
 #ifndef SILENT
-      Serial.print(F("\r\nHOME"));
+      Serial.print(F("HOME"));
 #endif
       {
         //接続が切れたとき動作を停止する
@@ -67,6 +67,9 @@ void loop() {
       }
       Wii.disconnect();
     }else{
+#ifndef SILENT
+      Serial.print(F("\r\n"));
+#endif
       static unsigned int checkcount = 0;
       // Wiiリモコン切断検出用チェック処理
       static float newer_pitch = 0.0;
@@ -107,48 +110,54 @@ void loop() {
 
       if(Wii.getButtonPress(Hastler_left)){ //ステアリング制御左
 #ifdef DEBUG
-        Serial.print(F("\r\nLeft"));
+        Serial.print(F("\tLeft"));
 #endif
         hastler_moter_front(MIN_MOTER_VAL);
       }else if(Wii.getButtonPress(Hastler_right)){ //ステアリング制御右
 #ifdef DEBUG
-        Serial.print(F("\r\nRight"));
+        Serial.print(F("\tRight"));
 #endif
         hastler_moter_front(MAX_MOTER_VAL);
       }else{ //ステアリング制御中立
 #ifdef DEBUG
-        Serial.print(F("\r\n"));
+        Serial.print(F("\t"));
 #endif
         hastler_moter_front(STOP_MOTER_VAL);
       }
 
       if(Wii.getButtonPress(Hastler_back)){ //駆動制御減速
 #ifdef DEBUG
-        Serial.print(F("\r\nDown"));
+        Serial.print(F("\tDown"));
 #endif
         analogWrite(back_light, 0);
         if(0 < val_back){
-          hastler_moter_back(val_back-=val_step);
+          val_back = hastler_moter_back(val_back-=val_step);
         }
       }else if(Wii.getButtonPress(Hastler_front)){ //駆動制御加速
 #ifdef DEBUG
-        Serial.print(F("\r\nUp"));
+        Serial.print(F("\tUp"));
 #endif
         analogWrite(back_light, 0);
         if(val_back < MAX_MOTER_VAL){
-          hastler_moter_back(val_back+=val_step);
+          val_back = hastler_moter_back(val_back+=val_step);
         }
       }else{ //駆動制御中立
 #ifdef DEBUG
-        Serial.print(F("\r\n"));
+        Serial.print(F("\t"));
 #endif
         analogWrite(back_light, 255);
-        if(val_back <= STOP_MOTER_VAL){
-          hastler_moter_back(val_back+=val_step);
+        if(val_back < (STOP_MOTER_VAL - val_step)){
+          val_back = hastler_moter_back(val_back+=val_step);
+        }else if(val_back > (STOP_MOTER_VAL + val_step)){
+          val_back = hastler_moter_back(val_back-=val_step);
         }else{
-          hastler_moter_back(val_back-=val_step);
+          val_back = hastler_moter_back(STOP_MOTER_VAL);
         }
       }
+#ifdef DEBUG
+      Serial.print(F("\tval_back = "));
+      Serial.print(val_back);
+#endif
 
       if(Wii.getButtonClick(A)){
 #ifndef SILENT

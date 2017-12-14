@@ -17,22 +17,16 @@ void hastler_motor_init(){
 	pinMode(analogOutPin_back,OUTPUT); //制御用ピン
 }
 
-void hastler_moter_front(const int val = STOP_MOTER_VAL){
+int hastler_moter_front(const int val = STOP_MOTER_VAL){
 	int val_front;
 	if(val < MIN_MOTER_VAL){
-		Serial.print("\nhastler_moter_front input val = ");
-		Serial.println(val);
 		val_front = MIN_MOTER_VAL;
 	}else if(MAX_MOTER_VAL < val){
-		Serial.print("\nhastler_moter_front input val = ");
-		Serial.println(val);
 		val_front = MAX_MOTER_VAL;
 	}else{
 		val_front = val;
 	}
 
-	Serial.print(" val_front = ");
-	Serial.print(val_front);
 	//前輪
 	//静止／正転／逆転の状態に分けてプログラムする
 	if(val_front>=255 && val_front<=256){ //静止:255~256
@@ -52,24 +46,19 @@ void hastler_moter_front(const int val = STOP_MOTER_VAL){
 		//val_frontが小さいほど出力値は大きくなる
 		analogWrite(analogOutPin_front,255-val_front); //出力値:1~255
 	}
+ return(val_front);
 }
 
-void hastler_moter_back(const int val = STOP_MOTER_VAL){
+int hastler_moter_back(const int val = STOP_MOTER_VAL){
 	int val_back;
 	if(val < MIN_MOTER_VAL){
-		Serial.print("\nhastler_moter_back input val = ");
-		Serial.println(val);
 		val_back = MIN_MOTER_VAL;
 	}else if(MAX_MOTER_VAL < val){
-		Serial.print("\nhastler_moter_back input val = ");
-		Serial.println(val);
 		val_back = MAX_MOTER_VAL;
 	}else{
 		val_back = val;
 	}
 
-	Serial.print(" val_back = ");
-	Serial.print(val_back);
 	//後輪
 	//静止／正転／逆転の状態に分けてプログラムする
 	if(val_back>=255 && val_back<=256){ //静止:255~256
@@ -89,4 +78,5 @@ void hastler_moter_back(const int val = STOP_MOTER_VAL){
 		//val_backが小さいほど出力値は大きくなる
 		analogWrite(analogOutPin_back,255-val_back); //出力値:1~255
 	}
+ return(val_back);
 }
