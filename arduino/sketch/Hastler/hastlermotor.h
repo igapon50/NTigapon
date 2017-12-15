@@ -1,7 +1,7 @@
 #ifndef _hastlermotor_h
 #define _hastlermotor_h
 
-#define MAX_MOTER_VAL 511
+#define MAX_MOTER_VAL 510
 #define STOP_MOTER_VAL 255
 #define MIN_MOTER_VAL 0
 

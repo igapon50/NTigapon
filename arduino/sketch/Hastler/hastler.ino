@@ -16,14 +16,13 @@ WII Wii(&Btd, PAIR);
 #ifndef SILENT
 #define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
 #endif
-#define VERSION_STRING "0.0.4"
+#define VERSION_STRING "0.0.5"
 #define CONNECTION_TIMEOUT_COUNT (50/*Wiiリモコンとの接続タイムアウトチェック回数*/)
+#define ROLL_CHECK /* 有効にするとROLLもチェックする */
 #define Hastler_front ONE 
 #define Hastler_back TWO
 #define Hastler_right DOWN
 #define Hastler_left UP
-float older_pitch = 0.0;//切断検出用
-float older_roll = 0.0;//切断検出用
 const int sensor_light = A0;
 const int front_light = A1;
 const int back_light = A2;
@@ -51,7 +50,6 @@ void setup() {
 }
 
 void loop() {
-  static int val_front = STOP_MOTER_VAL, val_back = STOP_MOTER_VAL, val_step = 5;
   Usb.Task();
   if (Wii.wiimoteConnected) {
     if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
@@ -70,13 +68,15 @@ void loop() {
 #ifndef SILENT
       Serial.print(F("\r\n"));
 #endif
+      static int val_step = 3;
+      static int val_back = STOP_MOTER_VAL;
       static unsigned int checkcount = 0;
       // Wiiリモコン切断検出用チェック処理
       static float newer_pitch = 0.0;
       static float older_pitch = 0.0; //切断検出用
       if(val_back != STOP_MOTER_VAL){ //駆動時だけチェックする
         newer_pitch = Wii.getPitch();
-#ifdef DEBUG
+#ifdef ROLL_CHECK
         static float newer_roll = 0.0;
         static float older_roll = 0.0;//切断検出用
         newer_roll = Wii.getRoll();
@@ -99,7 +99,7 @@ void loop() {
           }
         }else{ //値に変化あり
           older_pitch = newer_pitch;
-#ifdef DEBUG
+#ifdef ROLL_CHECK
           older_roll = newer_roll;
 #endif
           checkcount = 0;
@@ -159,7 +159,21 @@ void loop() {
       Serial.print(val_back);
 #endif
 
-      if(Wii.getButtonClick(A)){
+      if(Wii.getButtonClick(PLUS)){ //val_step調整
+#ifndef SILENT
+        Serial.print(F("\r\nPlus"));
+#endif
+        if(STOP_MOTER_VAL > val_step){
+          val_step++;
+        }
+      }else if(Wii.getButtonClick(MINUS)){ //val_step調整
+#ifndef SILENT
+        Serial.print(F("\r\nMinus"));
+#endif
+        if(1 < val_step){
+          val_step--;
+        }
+      }else if(Wii.getButtonClick(A)){
 #ifndef SILENT
         Serial.print(F("\r\nA"));
 #endif
