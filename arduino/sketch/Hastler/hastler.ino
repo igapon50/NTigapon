@@ -12,9 +12,9 @@ USB Usb;
 BTD Btd(&Usb);
 WII Wii(&Btd, PAIR);
 
-#define SILENT /* 有効にするとシリアルに出力しない */
+//#define SILENT /* 有効にするとシリアルに出力しない(arduino pro miniでは無効にすること) */
 #ifndef SILENT
-#define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
+//#define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
 #endif
 #define VERSION_STRING "0.0.5"
 #define CONNECTION_TIMEOUT_COUNT (50/*Wiiリモコンとの接続タイムアウトチェック回数*/)

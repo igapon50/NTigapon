@@ -3,8 +3,8 @@
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
-#endif
 #include <SPI.h>
+#endif
 #include <Wire.h>
 #include <Servo.h>
 #include "TwoButtonControlMotor.h"
@@ -17,8 +17,9 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 #ifndef SILENT
 #define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
 #endif
-#define VERSION_STRING "0.0.4"
+#define VERSION_STRING "0.0.5"
 #define CONNECTION_TIMEOUT_COUNT (50/*Wiiリモコンとの接続タイムアウトチェック回数*/)
+#define ROLL_CHECK /* 有効にするとROLLもチェックする */
 #define EMERGENCY_STOP_COUNT (100/*緊急停止後の復帰タイムアウトチェック回数*/)
 //---------------------------
 // Arduino Pinアサインと定義
@@ -130,7 +131,7 @@ void loop()
       int l_stopval = moterspeed.getStopval();
       int l_getval = moterspeed.getValue();
       if(l_getval != l_stopval){ //駆動時だけチェックする
-#ifdef DEBUG
+#ifdef ROLL_CHECK
         static float newer_roll = 0.0;
         static float older_roll = 0.0;//切断検出用
         newer_roll = Wii.getRoll();
@@ -159,8 +160,10 @@ void loop()
 #endif
         }else{ //値に変化あり
           older_pitch = newer_pitch;
-#ifdef DEBUG
+#ifdef ROLL_CHECK
           older_roll = newer_roll;
+#endif
+#ifdef DEBUG
           oldtime = millis();
 #endif
           checkcount = 0;
