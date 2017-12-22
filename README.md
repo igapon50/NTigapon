@@ -37,6 +37,7 @@ Arduino sketch and ESP-IDF project.
                         - 単3電池×3
     - Wii_servo_ESC
         - 2017/12/16-17に開催される[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展する作品のArduino sketchである
+        - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
         - ROADSTERにサーボ×1とESC×1と超音波距離センサー×2を追加し、Arduinoで制御する
         - Wiiリモコン
@@ -77,7 +78,7 @@ Arduino sketch and ESP-IDF project.
     - esp32_theta
         - RICOH THETAとWi-Fi接続し、I2Cから'A'を受け取ると、OSC V2.1 WebAPIでTakePicture(静止画撮影)を送信する
     - gatt_client
-        - RICOH THETA V とBLE接続し、以下のコマンドを送信する
+        - RICOH THETA V とBLE接続し、以下のコマンドを送信する(未完成)
             - Bluetooth Control Command の AUTH_BLUETOOTH_DEVICE に UUIDをwrite
             - Shooting Control Command の Take Picture に 1をwrite
     - gatt_security_client
@@ -85,7 +86,7 @@ Arduino sketch and ESP-IDF project.
     - hello_world
         - Hello worldサンプルプロジェクト
     - http_request
-        - RICOH THETA V とWiFi接続し、以下のコマンドを送信する
+        - RICOH THETA V とWiFi接続し、以下のコマンドを送信する(未完成)
             - camera.takePicture(静止画撮影)
             - _bluetoothPowerをON
             - camera._setBluetoothDeviceでUUIDを登録
