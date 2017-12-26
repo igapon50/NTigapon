@@ -54,7 +54,7 @@ TwoButtonControlMotor moterspeed,servoangle;
 #define back_limit_Distance (30/*後方の障害物までの距離がこれより近づくと停止する[cm]*/)
 //---------------------------
 
-int getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
+int getUltrasonicDistance(int trigPin = 2, int echoPin = 4, unsigned long limit_Distance = 100)
 {
   float l_Distance = 0; //受信した間隔,距離
   digitalWrite(trigPin, LOW);
@@ -62,10 +62,14 @@ int getUltrasonicDistance(int trigPin = 2, int echoPin = 4)
   digitalWrite(trigPin, HIGH); //超音波を出力
   delayMicroseconds(11); //
   digitalWrite(trigPin, LOW);
-  l_Distance = pulseIn(echoPin, HIGH); //センサからの入力
+  l_Distance = pulseIn(echoPin, HIGH, limit_Distance * 59); //センサからの入力
   // 340*100/1000000/2=0.017 往復距離を半分にして音速を340m/sで計算
   // 1/0.017=58.8 四捨五入して59
-  l_Distance = l_Distance/59;
+  if(0 == l_Distance){ //タイムアウトしたとき
+    l_Distance = limit_Distance + 1;
+  }else{ //距離が測れたとき
+    l_Distance/=59;
+  }
   return((int)l_Distance);
 }
 
@@ -234,7 +238,7 @@ void loop()
 
       //超音波センサーで距離を測って衝突回避、緊急停止中はreturnする
       if(l_stopval < l_getval){ //前進時
-        int Distance = getUltrasonicDistance(front_trigPin, front_echoPin);
+        int Distance = getUltrasonicDistance(front_trigPin, front_echoPin, front_limit_Distance);
         if(Distance < front_limit_Distance){ //緊急停止チェック
           emergency_stop = true;
           stopcount = 0;
@@ -248,7 +252,7 @@ void loop()
           return;
         }
       }else if(l_getval < l_stopval){ //後進時
-        int Distance = getUltrasonicDistance(back_trigPin, back_echoPin);
+        int Distance = getUltrasonicDistance(back_trigPin, back_echoPin, back_limit_Distance);
         if(Distance < back_limit_Distance){ //緊急停止チェック
           emergency_stop = true;
           stopcount = 0;
