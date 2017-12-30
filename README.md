@@ -54,6 +54,8 @@ Arduino sketch and ESP-IDF project.
     - モジュール動作確認用各種スケッチ
         - ESC
             - ジョイスティックによるESC制御
+        - ESP32_BLE
+            - BlynkジョイスティックによるESP32制御
         - joystick
             - ジョイスティック制御
         - MMA7660FC
