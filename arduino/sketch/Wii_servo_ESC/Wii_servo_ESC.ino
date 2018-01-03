@@ -34,7 +34,7 @@ WII Wii(&Btd, PAIR); // This will start an inquiry and then pair with your Wiimo
 //     モーター2(esc)
 //       D6(PWM)-Vref
 Servo servo,esc;//オブジェクトを作成
-TwoButtonControlMotor moterspeed,servoangle;
+TwoButtonControlMotor motorspeed,servoangle;
 #define ButtonPress_front ONE
 #define ButtonPress_back TWO
 #define ButtonPress_right DOWN
@@ -83,11 +83,11 @@ void setup()
   pinMode(front_echoPin, INPUT);
   pinMode(back_trigPin, OUTPUT);
   pinMode(back_echoPin, INPUT);
-  moterspeed.init(5);
+  motorspeed.init(5);
   servoangle.init(5,45,90,135);
   esc.attach(6,1500-500,1500+500); //D6ピンを信号線として設定//使用PIN、ニュートラル1500[μsec]、可変範囲±500[μsec]
   servo.attach(3,1500-600,1500+600); //D3ピンをサーボの信号線として設定
-  esc.write(moterspeed.QuickStop()); // ニュートラルに設定
+  esc.write(motorspeed.QuickStop()); // ニュートラルに設定
   servo.write(servoangle.QuickStop()); // サーボの角度を90°に設定
 //  delay(3000);
 #if !defined(__MIPSEL__)
@@ -113,7 +113,7 @@ void loop()
       Serial.print(F("\r\nHOME"));
 #endif
       //接続が切れたとき動作を停止する
-      esc.write(moterspeed.QuickStop());
+      esc.write(motorspeed.QuickStop());
       Wii.disconnect();
     }else{
       static bool steeringtypePitch = false;//tureならpitchによる制御、falseならUP/DOWNによるTwoButtonControlMotor制御
@@ -132,8 +132,8 @@ void loop()
 //      Serial.print(F("\t\npitch = "));
 //      Serial.print(newer_pitch);
 #endif
-      int l_stopval = moterspeed.getStopval();
-      int l_getval = moterspeed.getValue();
+      int l_stopval = motorspeed.getStopval();
+      int l_getval = motorspeed.getValue();
       if(l_getval != l_stopval){ //駆動時だけチェックする
 #ifdef ROLL_CHECK
         static float newer_roll = 0.0;
@@ -147,7 +147,7 @@ void loop()
 #endif
           checkcount++;
           if(CONNECTION_TIMEOUT_COUNT < checkcount){ //規定回数に達したら切断処理する
-            esc.write(moterspeed.QuickStop());
+            esc.write(motorspeed.QuickStop());
 #ifdef DEBUG
             Serial.print(F("\r\nesc QuickStop Timeout"));
             oldtime = millis();
@@ -248,7 +248,7 @@ void loop()
           stoptime = millis();
 #endif
           Wii.setRumbleOn();
-          esc.write(moterspeed.QuickStop());
+          esc.write(motorspeed.QuickStop());
           return;
         }
       }else if(l_getval < l_stopval){ //後進時
@@ -262,7 +262,7 @@ void loop()
           stoptime = millis();
 #endif
           Wii.setRumbleOn();
-          esc.write(moterspeed.QuickStop());
+          esc.write(motorspeed.QuickStop());
           return;
         }
       }else{ //停止時
@@ -288,21 +288,21 @@ void loop()
 #ifdef DEBUG
         Serial.print(F("\tBACK"));
 #endif
-        esc.write(--moterspeed);
+        esc.write(--motorspeed);
       }else if (Wii.getButtonPress(ButtonPress_front)) {
 #ifdef DEBUG
         Serial.print(F("\tFRONT"));
 #endif
-        esc.write(++moterspeed);
+        esc.write(++motorspeed);
       }else{
 #ifdef DEBUG
         Serial.print(F("\tNON"));
 #endif
-        esc.write(moterspeed.Stop());
+        esc.write(motorspeed.Stop());
       }
 #ifdef DEBUG
-      Serial.print(F("\tmoterspeed = "));
-      Serial.print(moterspeed.getValue());
+      Serial.print(F("\tmotorspeed = "));
+      Serial.print(motorspeed.getValue());
 #endif
     }
   }

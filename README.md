@@ -36,7 +36,7 @@ Arduino sketch and ESP-IDF project.
                     - 4.75V以下はDC-DC昇圧回路で5VにしてRAWにInputとR5の回路側に接続
                         - 単3電池×3
     - Wii_servo_ESC
-        - 2017/12/16-17に開催される[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展する作品のArduino sketchである
+        - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
         - ROADSTERにサーボ×1とESC×1と超音波距離センサー×2を追加し、Arduinoで制御する
@@ -51,11 +51,17 @@ Arduino sketch and ESP-IDF project.
                 - 1ボタン(加速)/2ボタン(減速)
                 - Homeボタン(切断)
         - 超音波センサーで距離を測って衝突回避(緊急停止)
+    - ESP32_Blynk_Roadster
+        - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
+        - ROADSTERにサーボ×1とESC×1を追加し、ESP32で制御する
+        - スマホアプリのBlynkでESP32をコントロールする
     - モジュール動作確認用各種スケッチ
         - ESC
             - ジョイスティックによるESC制御
         - ESP32_BLE
             - BlynkジョイスティックによるESP32制御
+        - ESP32_THETA
+            - ESP32でI2C通信試したが対応してなかった
         - joystick
             - ジョイスティック制御
         - MMA7660FC
@@ -78,20 +84,22 @@ Arduino sketch and ESP-IDF project.
             - I2C通信
 - ESP-IDF
     - esp32_theta
+        - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のESP-IDF projectである
         - RICOH THETAとWi-Fi接続し、I2Cから'A'を受け取ると、OSC V2.1 WebAPIでTakePicture(静止画撮影)を送信する
-    - gatt_client
-        - RICOH THETA V とBLE接続し、以下のコマンドを送信する(未完成)
-            - Bluetooth Control Command の AUTH_BLUETOOTH_DEVICE に UUIDをwrite
-            - Shooting Control Command の Take Picture に 1をwrite
-    - gatt_security_client
-        - 作成中
-    - hello_world
-        - Hello worldサンプルプロジェクト
-    - http_request
-        - RICOH THETA V とWiFi接続し、以下のコマンドを送信する(未完成)
-            - camera.takePicture(静止画撮影)
-            - _bluetoothPowerをON
-            - camera._setBluetoothDeviceでUUIDを登録
+    - モジュール動作確認用各種スケッチ
+        - gatt_client
+            - RICOH THETA V とBLE接続し、以下のコマンドを送信する(未完成)
+                - Bluetooth Control Command の AUTH_BLUETOOTH_DEVICE に UUIDをwrite
+                - Shooting Control Command の Take Picture に 1をwrite
+        - gatt_security_client
+            - 作成中
+        - hello_world
+            - Hello worldサンプルプロジェクト
+        - http_request
+            - RICOH THETA V とWiFi接続し、以下のコマンドを送信する(未完成)
+                - camera.takePicture(静止画撮影)
+                - _bluetoothPowerをON
+                - camera._setBluetoothDeviceでUUIDを登録
 
 ## Demo
 
@@ -108,8 +116,9 @@ Arduino sketch and ESP-IDF project.
 ## Licence
 
 - 全て Mitライセンスとする
-    - Hastler & Wii_servo_ESC Mitライセンス
+    - Hastler & Wii_servo_ESC & ESP32_Blynk_Roadster Mitライセンス
     - その他Arduino IDEに付属するスケッチ例(LGPL)から修正したスケッチはMitライセンス
+    - Blynkに付属するサンプル(Mitライセンス)から作成したスケッチはMitライセンス
     - USB Host Shield用スケッチ例(LGPL)から修正したスケッチはMitライセンス
     - ESP-IDF用サンプルprojectから修正したprojectもMitライセンス
 
