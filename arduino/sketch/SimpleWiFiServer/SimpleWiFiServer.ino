@@ -27,8 +27,10 @@ ported for sparkfun esp32
 
 #include <WiFi.h>
 
-const char* ssid     = "yourssid";
-const char* password = "yourpasswd";
+const char* ssid     = "THETA-BOSS"; //yourssid
+const char* password = "thetaboss"; //yourpasswd
+const IPAddress ip(192, 168, 10, 1);      // IPアドレス
+const IPAddress subnet(255, 255, 255, 0); // サブネットマスク
 
 WiFiServer server(80);
 
@@ -40,7 +42,19 @@ void setup()
     delay(10);
 
     // We start by connecting to a WiFi network
+#if 1
+  WiFi.softAP(ssid, password);           // SSIDとパスの設定
+  delay(100);                        // 追記：このdelayを入れないと失敗する場合がある
+  WiFi.softAPConfig(ip, ip, subnet); // IPアドレス、ゲートウェイ、サブネットマスクの設定
+  
+  IPAddress myIP = WiFi.softAPIP();  // WiFi.softAPIP()でWiFi起動
 
+  /* 各種情報を表示 */
+  Serial.print("SSID: ");
+  Serial.println(ssid);
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+#else
     Serial.println();
     Serial.println();
     Serial.print("Connecting to ");
@@ -52,14 +66,13 @@ void setup()
         delay(500);
         Serial.print(".");
     }
-
     Serial.println("");
     Serial.println("WiFi connected.");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
+#endif
     
     server.begin();
-
 }
 
 int value = 0;
