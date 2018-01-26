@@ -74,12 +74,18 @@ Arduino sketch and ESP-IDF project.
             - ジョイスティックによるサーボ制御
         - servo_ESC
             - ジョイスティックによるサーボとESCの制御
+        - SimpleWiFiServer
+            - ESP32用
         - UltrasonicDisplayOnTerm
             - 超音波センサ測定
         - UltrasonicDisplayOnTerm_HS-SR04
             - HS-SR04超音波センサ二つ測定
         - Wii
             - USB Host Shield & BluetoothドングルによるWiiリモコン制御
+        - WiFiClient
+            - ESP32でTHETA接続と静止画撮影
+        - WiFiScan
+            - ESP32用
         - wire
             - I2C通信
 - ESP-IDF
