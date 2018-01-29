@@ -11,8 +11,10 @@ Arduino sketch and ESP-IDF project.
 
 ## Description
 
+sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット名]とする
+
 - arduino
-    - Hastler
+    - arduino_wii_Hastler
         - 2017/7/8-9に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT金沢向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTi-qVfNM3mMPAdq)参照のこと
         - 市販品の1/20スケールラジコンカー[Hustler](https://www.amazon.co.jp/dp/B072JSL6Z9/ref=pe_2107282_266464282_TE_3p_dp_1)を改造する
@@ -35,7 +37,7 @@ Arduino sketch and ESP-IDF project.
                         - 単3電池×4
                     - 4.75V以下はDC-DC昇圧回路で5VにしてRAWにInputとR5の回路側に接続
                         - 単3電池×3
-    - Wii_servo_ESC
+    - arduino_wii_Roadster
         - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
@@ -56,38 +58,42 @@ Arduino sketch and ESP-IDF project.
         - ROADSTERにサーボ×1とESC×1を追加し、ESP32で制御する
         - スマホアプリのBlynkでESP32をコントロールする
     - モジュール動作確認用各種スケッチ
-        - ESC
-            - ジョイスティックによるESC制御
-        - ESP32_BLE
-            - BlynkジョイスティックによるESP32制御
-        - ESP32_THETA
-            - ESP32でI2C通信試したが対応してなかった
-        - joystick
-            - ジョイスティック制御
-        - MMA7660FC
-            - 加速度センサー測定
-        - motor
-            - モーター制御
-        - optical
-            - LED制御
-        - servo
-            - ジョイスティックによるサーボ制御
-        - servo_ESC
-            - ジョイスティックによるサーボとESCの制御
-        - SimpleWiFiServer
-            - ESP32用
-        - UltrasonicDisplayOnTerm
-            - 超音波センサ測定
-        - UltrasonicDisplayOnTerm_HS-SR04
+        - arduino_HS-SR04_Ultrasonic
             - HS-SR04超音波センサ二つ測定
-        - Wii
+        - arduino_I2C
+            - arduino_I2C_MasterWriter
+            - arduino_I2C_SlaveReceiver
+                - I2C通信
+        - arduino_Joystick_ESC
+            - ジョイスティックによるESC制御
+        - arduino_joystick_joystick
+            - ジョイスティック制御
+        - arduino_joystick_servo
+            - ジョイスティックによるサーボ制御
+        - arduino_joystick_servoESC
+            - ジョイスティックによるサーボとESCの制御
+        - arduino_MMA7660FC_MMA7660FC
+            - 加速度センサー測定
+        - arduino_optical_LED
+            - 光センサーによるLED制御
+        - arduino_optical_TA7291P
+            - 光センサーによるモーター制御
+        - arduino_Ultrasonic_Ultrasonic
+            - 超音波センサ測定
+        - arduino_USBPTP_THETA
+            - PTPコマンドによるRICOH THETA制御、ディスクリプタの取得に失敗する
+        - arduino_wii_wii
             - USB Host Shield & BluetoothドングルによるWiiリモコン制御
-        - WiFiClient
-            - ESP32でTHETA接続と静止画撮影
-        - WiFiScan
+        - ESP32_Blynk_BLE
+            - BlynkジョイスティックによるESP32制御
+        - ESP32_Fixed_I2C
+            - ESP32でI2C通信試したが対応してなかった
+        - ESP32_Fixed_SimpleWiFiServer
             - ESP32用
-        - wire
-            - I2C通信
+        - ESP32_WiFiCLient_THETA
+            - ESP32でTHETA接続と静止画撮影
+        - ESP32_WiFiScan_THETA
+            - ESP32用
 - ESP-IDF
     - esp32_theta
         - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のESP-IDF projectである

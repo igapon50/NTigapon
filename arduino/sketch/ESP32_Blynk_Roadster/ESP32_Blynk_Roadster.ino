@@ -25,25 +25,23 @@
 
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
-
 #define BLYNK_USE_DIRECT_CONNECT
-
 #include <BlynkSimpleEsp32_BLE.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include "esp_system.h"
 #include "TwoButtonControlMotor.h"
 
-#define SILENT /* 有効にするとシリアルに出力しない */
+//#define SILENT /* 有効にするとシリアルに出力しない */
 #ifndef SILENT
 #define DEBUG /* 有効にするとシリアルに出力するデバッグ情報を増やす */
 #endif
-#define VERSION_STRING "0.0.1"
+#define VERSION_STRING "0.0.2"
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
 char auth[] = "YourAuthToken"; //YourAuthToken
-long steeringtypePitch,joystictypeLeft;
+long steeringtypePitch, joystictypeLeft;
 TwoButtonControlMotor servoangle, motorspeed;
 const int ON = 1;
 const int OFF = 0;
@@ -61,8 +59,10 @@ void setup()
 {
 #ifndef SILENT
   Serial.begin(115200);
-  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+  Serial.println(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
 #endif
+  steeringtypePitch = OFF;
+  joystictypeLeft = OFF;
   motorspeed.init(5, VALUE_MIN, VALUE_STOP, VALUE_MAX);
   servoangle.init(5, VALUE_MIN + 15, VALUE_STOP, VALUE_MAX - 15);
   ledcSetup(CHANNEL_MOTOR, LEDC_BASE_FREQ, LEDC_TIMER_BIT);
@@ -91,7 +91,7 @@ void setSteering(int pitch){
 }
 
 void setSpeed(int speed){
-  //ステアリング制御
+  //駆動力制御
   int speedValue = map(constrain(speed, -10, 10), 10, -10, motorspeed.getMinval(), motorspeed.getMaxval());
   motorspeed.setValue(speedValue);
   ledcWrite(CHANNEL_MOTOR, motorspeed.getValue());
@@ -157,7 +157,7 @@ BLYNK_WRITE(V4)
   steeringtypePitch = param.asInt();
 }
 
-//右ボタン
+//TOGLE JOYSTIC TYPE 右ボタン
 BLYNK_WRITE(V5)
 {
   joystictypeLeft = param.asInt();
@@ -166,8 +166,22 @@ BLYNK_WRITE(V5)
 //状態表示
 BLYNK_READ(V6)
 {
-    Blynk.virtualWrite(V6, servoangle.getValue());
-//    Blynk.virtualWrite(V6, motorspeed.getValue());
+  Blynk.virtualWrite(V6, servoangle.getValue());
+//  Blynk.virtualWrite(V6, motorspeed.getValue());
+}
+
+BLYNK_CONNECTED(){
+  Blynk.syncAll();
+}
+
+// This is called when Smartphone App is opened
+BLYNK_APP_CONNECTED() {
+  Serial.println("App Connected.");
+}
+
+// This is called when Smartphone App is closed
+BLYNK_APP_DISCONNECTED() {
+  Serial.println("App Disconnected.");
 }
 
 void loop()
