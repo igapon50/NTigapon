@@ -67,6 +67,7 @@ void margeString_GET_Request(char *dststr, size_t dstlen, const char *path){
 	static const char *REQUEST_HEADER_1 = " HTTP/1.1\r\n"
 	"Connection: keep-alive\r\n"
 	"Content-Type: application/json\r\n"
+	"Accept: application/json\r\n"
 	"Content-Length: ";
 	static const char *REQUEST_HEADER_2 = "\r\nHost: "WEB_SERVER"\r\n"
 	"User-Agent: Apache-HttpClient/4.5.3 (Java/1.8.0_144)\r\n"
@@ -89,6 +90,7 @@ void margeString_POST_Request(char *dststr, size_t dstlen, const char *body, con
 	static const char *REQUEST_HEADER_1 = " HTTP/1.1\r\n"
 	"Connection: keep-alive\r\n"
 	"Content-Type: application/json\r\n"
+	"Accept: application/json\r\n"
 	"Content-Length: ";
 	static const char *REQUEST_HEADER_2 = "\r\nHost: "WEB_SERVER"\r\n"
 	"User-Agent: Apache-HttpClient/4.5.3 (Java/1.8.0_144)\r\n"
