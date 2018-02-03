@@ -57,8 +57,14 @@ static const char *REQUEST_MAIN_setBluetoothDevice = "{\r\n"
 "	\"parameters\":{\"uuid\":\""AUTH_UUID"\"}\r\n"
 "}\r\n";
 
-void margeString_POST_Request(char *dststr, size_t dstlen, const char *str1){
-	static const char *REQUEST_HEADER_1 = "POST /osc/commands/execute HTTP/1.1\r\n"
+// dststr 合成後の文字列
+// dstlen dststrのバッファサイズ
+// path FileUrl
+// ip 192.168.1.1(固定)
+// port 80(無指定)
+// method GET,POST(固定)
+void margeString_GET_Request(char *dststr, size_t dstlen, const char *path){
+	static const char *REQUEST_HEADER_1 = " HTTP/1.1\r\n"
 	"Connection: keep-alive\r\n"
 	"Content-Type: application/json\r\n"
 	"Content-Length: ";
@@ -67,16 +73,38 @@ void margeString_POST_Request(char *dststr, size_t dstlen, const char *str1){
 	"Authorization: Basic cmVjZXB0b3I6cmVjZXB0b3I=\r\n"
 	"\r\n";
 
-	//�p�����[�^�m�[�`�F�b�N
-	size_t length = strlen(str1);
-	snprintf(dststr, dstlen, "%s%d%s%s", REQUEST_HEADER_1, length, REQUEST_HEADER_2, str1);
+	//パラメータノーチェック
+	snprintf(dststr, dstlen, "GET %s%s%d%s", path, REQUEST_HEADER_1, 0, REQUEST_HEADER_2);
 	return;
 }
 
-//�T���v��
+// dststr 合成後の文字列
+// dstlen dststrのバッファサイズ
+// body data 送信するデータ
+// path /osc/commands/execute,/osc/state
+// ip 192.168.1.1(固定)
+// port 80(無指定)
+// method GET,POST(固定)
+void margeString_POST_Request(char *dststr, size_t dstlen, const char *body, const char *path = "/osc/commands/execute"){
+	static const char *REQUEST_HEADER_1 = " HTTP/1.1\r\n"
+	"Connection: keep-alive\r\n"
+	"Content-Type: application/json\r\n"
+	"Content-Length: ";
+	static const char *REQUEST_HEADER_2 = "\r\nHost: "WEB_SERVER"\r\n"
+	"User-Agent: Apache-HttpClient/4.5.3 (Java/1.8.0_144)\r\n"
+	"Authorization: Basic cmVjZXB0b3I6cmVjZXB0b3I=\r\n"
+	"\r\n";
+
+	//パラメータノーチェック
+	size_t length = strlen(body);
+	snprintf(dststr, dstlen, "POST %s%s%d%s%s", path, REQUEST_HEADER_1, length, REQUEST_HEADER_2, body);
+	return;
+}
+
+//サンプル
 // param s : socket
-// return true:����
-// return false:���s
+// return true:成功
+// return false:失敗
 #if 0
 bool initialize_requests(int s){
 	int r;

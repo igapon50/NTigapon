@@ -56,7 +56,7 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
     - ESP32_Blynk_Roadster
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
         - ROADSTERにサーボ×1とESC×1を追加し、ESP32で制御する
-        - スマホアプリのBlynkでESP32をコントロールする
+        - スマホアプリの[Blynk](https://www.blynk.cc/)でESP32をコントロールする
     - モジュール動作確認用各種スケッチ
         - arduino_HS-SR04_Ultrasonic
             - HS-SR04超音波センサ二つ測定
@@ -85,7 +85,7 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
         - arduino_wii_wii
             - USB Host Shield & BluetoothドングルによるWiiリモコン制御
         - ESP32_Blynk_BLE
-            - BlynkジョイスティックによるESP32制御
+            - [Blynk](https://www.blynk.cc/)ジョイスティックによるESP32制御
         - ESP32_Fixed_I2C
             - ESP32でI2C通信試したが対応してなかった
         - ESP32_Fixed_SimpleWiFiServer
@@ -130,7 +130,7 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
 - 全て Mitライセンスとする
     - Hastler & Wii_servo_ESC & ESP32_Blynk_Roadster Mitライセンス
     - その他Arduino IDEに付属するスケッチ例(LGPL)から修正したスケッチはMitライセンス
-    - Blynkに付属するサンプル(Mitライセンス)から作成したスケッチはMitライセンス
+    - [Blynk](https://www.blynk.cc/)に付属するサンプル(Mitライセンス)から作成したスケッチはMitライセンス
     - USB Host Shield用スケッチ例(LGPL)から修正したスケッチはMitライセンス
     - ESP-IDF用サンプルprojectから修正したprojectもMitライセンス
 
