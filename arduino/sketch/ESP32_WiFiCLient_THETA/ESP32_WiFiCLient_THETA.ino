@@ -9,13 +9,80 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 #include <aJSON.h>
+#include "FS.h"
+#include <SPIFFS.h>
+
+#define AP_PASSWORD "00101594"
+#define AP_SSID "THETAYL" AP_PASSWORD ".OSC"
+#define WEB_SERVER "192.168.1.1"
+#define WEB_PORT "80"
 #include "thetav2_1.h"
 
-String password = "00101594";
-String ssid     = "THETAYL" + String(password) + ".OSC";
+String password = AP_PASSWORD;
+String ssid     = AP_SSID;
 String host = WEB_SERVER;
 String port = WEB_PORT;
+String g_fileName;
 int result_timeout = 10000; //10秒
+
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+    Serial.printf("Listing directory: %s\r\n", dirname);
+
+    File root = fs.open(dirname);
+    if(!root){
+        Serial.println("Failed to open directory");
+        return;
+    }
+    if(!root.isDirectory()){
+        Serial.println("Not a directory");
+        return;
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        if(file.isDirectory()){
+            Serial.print("  DIR : ");
+            Serial.println(file.name());
+            if(levels){
+                listDir(fs, file.name(), levels -1);
+            }
+        } else {
+            Serial.print("  FILE: ");
+            Serial.print(file.name());
+            Serial.print("  SIZE: ");
+            Serial.println(file.size());
+        }
+        file = root.openNextFile();
+    }
+}
+
+void deleteFile(fs::FS &fs, const char * path){
+    Serial.printf("Deleting file: %s\r\n", path);
+    if(fs.remove(path)){
+        Serial.println("File deleted");
+    } else {
+        Serial.println("Delete failed");
+    }
+}
+
+size_t appendFile(fs::FS &fs, const char * path, uint8_t byte){
+  File file = fs.open(path, FILE_APPEND);
+  if(!file){
+    Serial.println("Failed to open file for appending");
+    return(0);
+  }
+  return(file.write(byte));
+}
+
+size_t appendFile(fs::FS &fs, const char * path, const uint8_t * buf, size_t size){
+  File file = fs.open(path, FILE_APPEND);
+  if(!file){
+    Serial.println("Failed to open file for appending");
+    return(0);
+  }
+  return(file.write(buf, size));
+}
+
 
 void arduinojson()
 {
@@ -25,7 +92,7 @@ void arduinojson()
   String privious_fileUrl = "";
   char buffer[1024] = {'\0'};
   const char *requests[] = {
-    REQUEST_MAIN_takePicture,
+    POST_REQUEST_BODY_takePicture,
     NULL
   };
 
@@ -174,7 +241,7 @@ void ajson()
   String privious_fileUrl = "";
   char buffer[1024] = {'\0'};
   const char *requests[] = {
-    REQUEST_MAIN_takePicture,
+    POST_REQUEST_BODY_takePicture,
     NULL
   };
 
@@ -313,6 +380,7 @@ void ajson()
     Serial.println(fileUrl);
   }while(fileUrl.equals(privious_fileUrl));
 
+  listDir(SPIFFS, "/", 0);
   delay(5000);
   {
     Serial.println("----------GET,url----------");
@@ -332,11 +400,37 @@ void ajson()
       }
     }
     // Read all the lines of the reply from server and print them to Serial
+#if 1
+    while(client.available()){
+      char ch = client.read();
+      Serial.printf("%x",ch);
+    }
+#else
+#if 0
     while(client.available()){
       String line = client.readStringUntil('\r');
       line.trim();
       Serial.println(line);
     }
+#else
+    uint8_t buf[1024 * 3];
+    size_t available_size = 0;
+    String fileName = fileUrl.substring(fileUrl.lastIndexOf("/R"));
+    Serial.println(fileName);
+    deleteFile(SPIFFS, g_fileName.c_str());
+    g_fileName = fileName;
+    deleteFile(SPIFFS, fileName.c_str());
+    available_size = client.available();
+    while(available_size){
+      client.read(buf, sizeof(buf));
+      appendFile(SPIFFS, fileName.c_str(), (const uint8_t *)buf, sizeof(buf));
+      yield();
+      available_size = client.available();
+      Serial.printf("%d ",available_size);
+    }
+    listDir(SPIFFS, "/", 0);
+#endif
+#endif
   }
   return;
 }
@@ -345,7 +439,10 @@ void setup()
 {
     Serial.begin(115200);
     while (!Serial){}
-    Serial.println();
+    if(!SPIFFS.begin()){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
@@ -355,12 +452,14 @@ void setup()
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
+        yield();
     }
 
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
+    g_fileName = "";
 }
 
 void loop()

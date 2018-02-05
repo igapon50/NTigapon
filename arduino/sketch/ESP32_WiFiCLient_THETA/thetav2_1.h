@@ -4,21 +4,31 @@
 #ifndef AUTH_UUID
 #define AUTH_UUID "00000000-0000-0000-0000-000000000000"
 #endif
+#ifndef AP_SSID
+#define AP_SSID "ap_ssid"
+#endif
+#ifndef AP_PASSWORD
+#define AP_PASSWORD "ap_password"
+#endif
+#ifndef WEB_SERVER
 #define WEB_SERVER "192.168.1.1"
+#endif
+#ifndef WEB_PORT
 #define WEB_PORT "80"
+#endif
 
-static const char *REQUEST_MAIN_takePicture = "{\r\n"
+static const char *POST_REQUEST_BODY_takePicture = "{\r\n"
 "	\"name\":\"camera.takePicture\"\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_closeSession = "{\r\n"
+static const char *POST_REQUEST_BODY_closeSession = "{\r\n"
 "	\"name\":\"camera.closeSession\",\r\n"
 "	\"parameters\":{\r\n"
 "		\"sessionId\": \"SID_0001\"\r\n"
 "	}\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_clientVersion = "{\r\n"
+static const char *POST_REQUEST_BODY_clientVersion = "{\r\n"
 "	\"name\":\"camera.setOptions\",\r\n"
 "	\"parameters\":{\r\n"
 "		\"sessionId\": \"SID_0001\",\r\n"
@@ -28,12 +38,12 @@ static const char *REQUEST_MAIN_clientVersion = "{\r\n"
 "	}\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_startSession = "{\r\n"
+static const char *POST_REQUEST_BODY_startSession = "{\r\n"
 "	\"name\":\"camera.startSession\",\r\n"
 "	\"parameters\":{}\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_getOptions__bluetoothPower = "{\r\n"
+static const char *POST_REQUEST_BODY_getOptions__bluetoothPower = "{\r\n"
 "	\"name\":\"camera.getOptions\",\r\n"
 "	\"parameters\":{\r\n"
 "		\"optionNames\":[\r\n"
@@ -43,7 +53,7 @@ static const char *REQUEST_MAIN_getOptions__bluetoothPower = "{\r\n"
 "	}\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_setOptions__bluetoothPower = "{\r\n"
+static const char *POST_REQUEST_BODY_setOptions__bluetoothPower = "{\r\n"
 "	\"name\":\"camera.setOptions\",\r\n"
 "	\"parameters\":{\r\n"
 "		\"options\":{\r\n"
@@ -52,9 +62,19 @@ static const char *REQUEST_MAIN_setOptions__bluetoothPower = "{\r\n"
 "	}\r\n"
 "}\r\n";
 
-static const char *REQUEST_MAIN_setBluetoothDevice = "{\r\n"
+static const char *POST_REQUEST_BODY_setBluetoothDevice = "{\r\n"
 "	\"name\":\"camera._setBluetoothDevice\",\r\n"
 "	\"parameters\":{\"uuid\":\""AUTH_UUID"\"}\r\n"
+"}\r\n";
+
+// POST http://192.168.1.1/osc/commands/execute
+static const char *POST_REQUEST_BODY_setAccessPoint = "{\r\n"
+"	\"name\":\"camera._setAccessPoint\",\r\n"
+"	\"parameters\":{\r\n"
+"		\"ssid\":\"" AP_SSID "\",\r\n"
+"		\"security\":\"WPA/WPA2 PSK\",\r\n"
+"		\"password\":\"" AP_PASSWORD "\"\r\n"
+"	}\r\n"
 "}\r\n";
 
 // dststr 合成後の文字列
@@ -103,7 +123,7 @@ void margeString_POST_Request(char *dststr, size_t dstlen, const char *body, con
 	return;
 }
 
-//サンプル
+//ESP-IDFサンプル
 // param s : socket
 // return true:成功
 // return false:失敗
@@ -113,10 +133,10 @@ bool initialize_requests(int s){
 	char recv_buf[64];
 	char buffer[1024] = {'\0'};
 	const char *requests[] = {
-		REQUEST_MAIN_setBluetoothDevice,
-		REQUEST_MAIN_setOptions__bluetoothPower,
-		REQUEST_MAIN_getOptions__bluetoothPower,
-//		REQUEST_MAIN_takePicture,
+		POST_REQUEST_BODY_setBluetoothDevice,
+		POST_REQUEST_BODY_setOptions__bluetoothPower,
+		POST_REQUEST_BODY_getOptions__bluetoothPower,
+//		POST_REQUEST_BODY_takePicture,
 		NULL
 	};
 	for(int no = 0 ; requests[no] != NULL ; no++){
