@@ -5,12 +5,18 @@
  *  below. Or just customize this script to talk to other HTTP servers.
  *
  */
-
+#define _ESP32_
+#ifdef _ESP32_
 #include <WiFi.h>
+#else
+#include <ESP8266WiFi.h>
+#endif
 #include <ArduinoJson.h>
 #include <aJSON.h>
 #include "FS.h"
+#ifdef _ESP32_
 #include <SPIFFS.h>
+#endif
 
 #define AP_PASSWORD "00101594"
 #define AP_SSID "THETAYL" AP_PASSWORD ".OSC"
@@ -210,8 +216,10 @@ void arduinojson()
   {
     Serial.println("----------GET,url----------");
     String url = "http://";
+    String Thumbneil = "?type=thumb";
     url += host;
     fileUrl.replace(url.c_str(), "");
+    fileUrl += Thumbneil;
     margeString_GET_Request(buffer, 1024, fileUrl.c_str());
     Serial.println(buffer);
     // This will send the request to the server
@@ -385,9 +393,10 @@ void ajson()
   {
     Serial.println("----------GET,url----------");
     String url = "http://";
+    String Thumbneil = "?type=thumb";
     url += host;
     fileUrl.replace(url.c_str(), "");
-    margeString_GET_Request(buffer, 1024, fileUrl.c_str());
+    margeString_GET_Request(buffer, 1024, (fileUrl + Thumbneil).c_str());
     Serial.println(buffer);
     // This will send the request to the server
     client.print(String(buffer));
@@ -400,11 +409,14 @@ void ajson()
       }
     }
     // Read all the lines of the reply from server and print them to Serial
-#if 1
+#if 0
+    long count = 0;
     while(client.available()){
       char ch = client.read();
-      Serial.printf("%x",ch);
+      count++;
+//      Serial.printf("%x",ch);
     }
+    Serial.printf("count = %ld\r\n",count);
 #else
 #if 0
     while(client.available()){
@@ -416,10 +428,12 @@ void ajson()
     uint8_t buf[1024 * 3];
     size_t available_size = 0;
     String fileName = fileUrl.substring(fileUrl.lastIndexOf("/R"));
-    Serial.println(fileName);
     deleteFile(SPIFFS, g_fileName.c_str());
+    yield();
+    Serial.println(g_fileName);
     g_fileName = fileName;
-    deleteFile(SPIFFS, fileName.c_str());
+    Serial.println(fileName);
+//    deleteFile(SPIFFS, fileName.c_str());
     available_size = client.available();
     while(available_size){
       client.read(buf, sizeof(buf));
@@ -428,6 +442,7 @@ void ajson()
       available_size = client.available();
       Serial.printf("%d ",available_size);
     }
+    yield();
     listDir(SPIFFS, "/", 0);
 #endif
 #endif
@@ -439,9 +454,11 @@ void setup()
 {
     Serial.begin(115200);
     while (!Serial){}
-    if(!SPIFFS.begin()){
-        Serial.println("SPIFFS Mount Failed");
-        return;
+    if(!SPIFFS.begin(true)){
+      Serial.println("SPIFFS Mount Failed");
+      return;
+    }else{
+      Serial.println("SPIFFS Mount Success");
     }
     Serial.println();
     Serial.print("Connecting to ");
