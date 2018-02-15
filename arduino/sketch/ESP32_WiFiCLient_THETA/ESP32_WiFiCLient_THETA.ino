@@ -71,6 +71,20 @@ void deleteFile(fs::FS &fs, const char * path){
     }
 }
 
+size_t writeFile(fs::FS &fs, const char * path, const uint8_t * buf, size_t size){
+    File file = fs.open(path, FILE_WRITE);
+    if(!file){
+        Serial.println("Failed to open file for writing");
+        return(0);
+    }
+
+    size_t i;
+    i = file.write(buf, size);
+    Serial.printf("%d:%d ", size, i);
+    file.close();
+    return(i);
+}
+
 size_t appendFile(fs::FS &fs, const char * path, uint8_t byte){
   File file = fs.open(path, FILE_APPEND);
   if(!file){
@@ -409,12 +423,14 @@ void ajson()
       }
     }
     // Read all the lines of the reply from server and print them to Serial
-#if 0
+#if 1
     long count = 0;
+    String fileName = fileUrl.substring(fileUrl.lastIndexOf("/R"));
     while(client.available()){
       char ch = client.read();
       count++;
-//      Serial.printf("%x",ch);
+      appendFile(SPIFFS, fileName.c_str(), (uint8_t)ch);
+      Serial.printf("%2x",ch);
     }
     Serial.printf("count = %ld\r\n",count);
 #else
@@ -425,24 +441,22 @@ void ajson()
       Serial.println(line);
     }
 #else
-    uint8_t buf[1024 * 3];
-    size_t available_size = 0;
+    uint8_t buf[512];
+    size_t available_size = 0, write_size = 0;
     String fileName = fileUrl.substring(fileUrl.lastIndexOf("/R"));
     deleteFile(SPIFFS, g_fileName.c_str());
-    yield();
     Serial.println(g_fileName);
     g_fileName = fileName;
     Serial.println(fileName);
 //    deleteFile(SPIFFS, fileName.c_str());
     available_size = client.available();
     while(available_size){
-      client.read(buf, sizeof(buf));
-      appendFile(SPIFFS, fileName.c_str(), (const uint8_t *)buf, sizeof(buf));
-      yield();
+      client.read(buf, 512);
+      write_size = appendFile(SPIFFS, fileName.c_str(), (const uint8_t *)buf, 512);
+//      write_size = writeFile(SPIFFS, fileName.c_str(), (const uint8_t *)buf, 512);
       available_size = client.available();
-      Serial.printf("%d ",available_size);
+      Serial.printf("%d:%d ", available_size, write_size);
     }
-    yield();
     listDir(SPIFFS, "/", 0);
 #endif
 #endif
@@ -454,7 +468,7 @@ void setup()
 {
     Serial.begin(115200);
     while (!Serial){}
-    if(!SPIFFS.begin(true)){
+    if(!SPIFFS.begin()){
       Serial.println("SPIFFS Mount Failed");
       return;
     }else{
