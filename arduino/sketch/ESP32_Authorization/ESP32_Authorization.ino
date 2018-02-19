@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 
-#ifdef ESP32_DEV
+#ifdef ARDUINO_ESP32_DEV
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #else
@@ -15,7 +15,7 @@
 #include <ESP8266WiFiMulti.h>
 #endif
 
-#ifdef _ESP32_
+#ifdef ARDUINO_ESP32_DEV
 #include <HTTPClient.h>
 #else
 #include <ESP8266HTTPClient.h>
@@ -23,7 +23,7 @@
 
 #define USE_SERIAL Serial
 
-#ifdef _ESP32_
+#ifdef ARDUINO_ESP32_DEV
 WiFiMulti wifiMulti;
 #else
 ESP8266WiFiMulti WiFiMulti;

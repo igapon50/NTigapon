@@ -5,7 +5,7 @@
  *  below. Or just customize this script to talk to other HTTP servers.
  *
  */
-#ifdef ESP32_DEV
+#ifdef ARDUINO_ESP32_DEV
 #include <WiFi.h>
 #else
 #include <ESP8266WiFi.h>
@@ -13,7 +13,7 @@
 #include <ArduinoJson.h>
 #include <aJSON.h>
 #include "FS.h"
-#ifdef ESP32_DEV
+#ifdef ARDUINO_ESP32_DEV
 #include <SPIFFS.h>
 #endif
 

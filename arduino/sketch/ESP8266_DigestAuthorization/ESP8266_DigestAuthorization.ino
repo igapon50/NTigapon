@@ -7,9 +7,17 @@
    or, at your option, CC0 licensed.
  */
 
+#ifdef ARDUINO_ESP32_DEV
+#include <WiFi.h>
+#else
 #include <ESP8266WiFi.h>
+#endif
 
+#ifdef ARDUINO_ESP32_DEV
+#include <HTTPClient.h>
+#else
 #include <ESP8266HTTPClient.h>
+#endif
 
 const char* ssid = "........";
 const char* ssidPassword = "........";
