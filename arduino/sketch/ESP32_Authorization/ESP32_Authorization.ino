@@ -7,14 +7,27 @@
 
 #include <Arduino.h>
 
+#ifdef ESP32_DEV
 #include <WiFi.h>
 #include <WiFiMulti.h>
+#else
+#include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#endif
 
+#ifdef _ESP32_
 #include <HTTPClient.h>
+#else
+#include <ESP8266HTTPClient.h>
+#endif
 
 #define USE_SERIAL Serial
 
+#ifdef _ESP32_
 WiFiMulti wifiMulti;
+#else
+ESP8266WiFiMulti WiFiMulti;
+#endif
 
 void setup() {
 
@@ -30,6 +43,7 @@ void setup() {
         delay(1000);
     }
 
+    WiFi.mode(WIFI_STA);
     wifiMulti.addAP("SSID", "PASSWORD");
 
 }
