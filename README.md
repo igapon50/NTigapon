@@ -14,6 +14,32 @@ Arduino sketch and ESP-IDF project.
 sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット名]とする
 
 - arduino
+    - ESP32_ps3_rb0021
+        - 2018/7/7-8に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22018)に出展した作品のArduino sketchである
+        - 簡単な紹介は[NT金沢向け資料]()参照のこと
+        - Nexus robot製品の[メカナムホイールロボット](http://www.vstone.co.jp/products/nexusrobot/download/nexus_10021.pdf)を改造する
+        - メカナムホイールロボットにESC×1とUSBホストシールドとBLEドングルを追加し、Arduinoで制御する
+        - PS3リモコン
+            - 
+            - 以下のコントロールを使用する
+                - 左スティック(移動)
+                - 右スティック(ロール)
+    - arduino_wii_Roadster
+        - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
+        - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
+        - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
+        - ROADSTERにサーボ×1とESC×1と超音波距離センサー×2を追加し、Arduinoで制御する
+        - Wiiリモコン
+            - 接続が切れると緊急停止(Wii.getPitch()とWii.getRoll()が一定回数変化しなければ切断と判断)
+            - 以下のボタンを使用する
+                - Aボタン(I2Cに'A'を送信)
+                - Bボタン(ステアリング切り替え)
+                    - UPボタン(ステアリング左)/DOWNボタン(ステアリング右)
+                    - Wii.getPitch()の260-160°(ステアリング左)/Wii.getPitch()の160-100°(ステアリング右)
+                - -ボタン(ステアリングトリム左)/+ボタン(ステアリングトリム右)
+                - 1ボタン(加速)/2ボタン(減速)
+                - Homeボタン(切断)
+        - 超音波センサーで距離を測って衝突回避(緊急停止)
     - arduino_wii_Hastler
         - 2017/7/8-9に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT金沢向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTi-qVfNM3mMPAdq)参照のこと
@@ -37,27 +63,13 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
                         - 単3電池×4
                     - 4.75V以下はDC-DC昇圧回路で5VにしてRAWにInputとR5の回路側に接続
                         - 単3電池×3
-    - arduino_wii_Roadster
-        - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
-        - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
-        - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
-        - ROADSTERにサーボ×1とESC×1と超音波距離センサー×2を追加し、Arduinoで制御する
-        - Wiiリモコン
-            - 接続が切れると緊急停止(Wii.getPitch()とWii.getRoll()が一定回数変化しなければ切断と判断)
-            - 以下のボタンを使用する
-                - Aボタン(I2Cに'A'を送信)
-                - Bボタン(ステアリング切り替え)
-                    - UPボタン(ステアリング左)/DOWNボタン(ステアリング右)
-                    - Wii.getPitch()の260-160°(ステアリング左)/Wii.getPitch()の160-100°(ステアリング右)
-                - -ボタン(ステアリングトリム左)/+ボタン(ステアリングトリム右)
-                - 1ボタン(加速)/2ボタン(減速)
-                - Homeボタン(切断)
-        - 超音波センサーで距離を測って衝突回避(緊急停止)
     - ESP32_Blynk_Roadster
         - 市販品の1/10スケールラジコンカー[ROADSTER](http://www.tamiya.com/japan/products/57891/index.html)を改造する
         - ROADSTERにサーボ×1とESC×1を追加し、ESP32で制御する
         - スマホアプリの[Blynk](https://www.blynk.cc/)でESP32をコントロールする
     - モジュール動作確認用各種スケッチ
+        - RB0021_Omni4WD_PID
+            - 
         - arduino_HS-SR04_Ultrasonic
             - HS-SR04超音波センサ二つ測定
         - arduino_I2C
