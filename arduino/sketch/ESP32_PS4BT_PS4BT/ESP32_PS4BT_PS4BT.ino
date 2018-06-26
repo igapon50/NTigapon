@@ -12,6 +12,7 @@
 #include <spi4teensy3.h>
 #endif
 #include <SPI.h>
+#include <Wire.h>
 
 USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside
@@ -38,11 +39,13 @@ void setup() {
     while (1); // Halt
   }
   Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+  Wire.begin(); // join i2c bus (address optional for master)
 }
 void loop() {
   Usb.Task();
 
   if (PS4.connected()) {
+#if 0
     if (PS4.getAnalogHat(LeftHatX) > 137 || PS4.getAnalogHat(LeftHatX) < 117 || PS4.getAnalogHat(LeftHatY) > 137 || PS4.getAnalogHat(LeftHatY) < 117 || PS4.getAnalogHat(RightHatX) > 137 || PS4.getAnalogHat(RightHatX) < 117 || PS4.getAnalogHat(RightHatY) > 137 || PS4.getAnalogHat(RightHatY) < 117) {
       Serial.print(F("\r\nLeftHatX: "));
       Serial.print(PS4.getAnalogHat(LeftHatX));
@@ -64,6 +67,32 @@ void loop() {
       PS4.setRumbleOn(PS4.getAnalogButton(L2), PS4.getAnalogButton(R2));
     oldL2Value = PS4.getAnalogButton(L2);
     oldR2Value = PS4.getAnalogButton(R2);
+#endif
+
+      uint8_t L_X = PS4.getAnalogHat(LeftHatX);
+      uint8_t L_Y = PS4.getAnalogHat(LeftHatY);
+      uint8_t R_X = PS4.getAnalogHat(RightHatX);
+      uint8_t R_Y = PS4.getAnalogHat(RightHatY);
+    if (L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
+      Wire.beginTransmission(8); // transmit to device #8
+      Wire.write('A' + map(L_X,0,255,0,15));           // sends one byte
+      Wire.write('A' + map(L_Y,0,255,0,15));           // sends one byte
+      Wire.write('A' + map(R_X,0,255,0,15));           // sends one byte
+      Wire.write('A' + map(R_Y,0,255,0,15));           // sends one byte
+      Wire.write('\n');           // sends one byte
+      Wire.endTransmission();    // stop transmitting
+      char c = 'A' + map(L_X,0,255,0,15);
+      Serial.print(c);
+      c = 'A' + map(L_Y,0,255,0,15);
+      Serial.print(c);
+      c = 'A' + map(R_X,0,255,0,15);
+      Serial.print(c);
+      c = 'A' + map(R_Y,0,255,0,15);
+      Serial.print(c);
+      c = '\n';
+      Serial.print(c);
+    }
+
 
     if (PS4.getButtonClick(PS)) {
       Serial.print(F("\r\nPS"));
@@ -72,11 +101,11 @@ void loop() {
     else {
       if (PS4.getButtonClick(TRIANGLE)) {
         Serial.print(F("\r\nTraingle"));
-        PS4.setRumbleOn(RumbleLow);
+//        PS4.setRumbleOn(RumbleLow);
       }
       if (PS4.getButtonClick(CIRCLE)) {
         Serial.print(F("\r\nCircle"));
-        PS4.setRumbleOn(RumbleHigh);
+//        PS4.setRumbleOn(RumbleHigh);
       }
       if (PS4.getButtonClick(CROSS)) {
         Serial.print(F("\r\nCross"));
