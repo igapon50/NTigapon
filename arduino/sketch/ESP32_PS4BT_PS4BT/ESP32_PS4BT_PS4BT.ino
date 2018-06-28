@@ -13,6 +13,7 @@
 #endif
 #include <SPI.h>
 #include <Wire.h>
+//   A4(SDA)とA5(SCL)は、I2C通信に使用する
 
 USB Usb;
 //USBHub Hub1(&Usb); // Some dongles have a hub inside

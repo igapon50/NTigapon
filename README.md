@@ -14,16 +14,28 @@ Arduino sketch and ESP-IDF project.
 sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット名]とする
 
 - arduino
-    - ESP32_ps3_rb0021
+    - _ps4_rb0021
         - 2018/7/7-8に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22018)に出展した作品のArduino sketchである
-        - 簡単な紹介は[NT金沢向け資料]()参照のこと
-        - Nexus robot製品の[メカナムホイールロボット](http://www.vstone.co.jp/products/nexusrobot/download/nexus_10021.pdf)を改造する
-        - メカナムホイールロボットにESC×1とUSBホストシールドとBLEドングルを追加し、Arduinoで制御する
-        - PS3リモコン
-            - 
+        - 簡単な紹介は[NT金沢2018紹介ペーパー](https://docs.google.com/presentation/d/1cxR8Wfju9DjyEiWv8WDgCyZg7StgXhj7UrDWSYJ_swc/edit#slide=id.g3c7cb5c890_0_0)参照のこと
+        - Nexus robot製品の[メカナムホイールロボット](http://www.vstone.co.jp/products/nexusrobot/download/nexus_10021.pdf)をベースにする
+        - メカナムホイールロボットにArduinoUnoとUSBホストシールドとBLEドングルを追加して制御する
+        - PS4リモコン
+            - ペアリング手順
+              - ドングルを挿してarduinoの電源をONする
+              - シリアルに「PS4 Bluetooth Library Started」と表示されたら
+              - コントローラのshare+PSボタンを押して、青色点滅させる
+              - 青色点灯に変わったら接続完了
             - 以下のコントロールを使用する
+                - PS
+                  - 切断/停止
                 - 左スティック(移動)
+                  - LeftHatX/LeftHatY
                 - 右スティック(ロール)
+                  - RightHatX/RightHatY
+                - L2/L1
+                  - イカ潜伏(移動速度に倍率をかける)
+                - LELECT/START
+                  - キャリブレーション(停止位置更新)
     - arduino_wii_Roadster
         - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
