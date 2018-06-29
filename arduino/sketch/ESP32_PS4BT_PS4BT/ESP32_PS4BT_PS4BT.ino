@@ -70,28 +70,31 @@ void loop() {
     oldR2Value = PS4.getAnalogButton(R2);
 #endif
 
-      uint8_t L_X = PS4.getAnalogHat(LeftHatX);
-      uint8_t L_Y = PS4.getAnalogHat(LeftHatY);
-      uint8_t R_X = PS4.getAnalogHat(RightHatX);
-      uint8_t R_Y = PS4.getAnalogHat(RightHatY);
-    if (L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
+    static char older_L_X = 0;
+    static char older_L_Y = 0;
+    static char older_R_X = 0;
+    static char older_R_Y = 0;
+    uint8_t L_X = PS4.getAnalogHat(LeftHatX);
+    uint8_t L_Y = PS4.getAnalogHat(LeftHatY);
+    uint8_t R_X = PS4.getAnalogHat(RightHatX);
+    uint8_t R_Y = PS4.getAnalogHat(RightHatY);
+    if (older_L_X != 'F' || older_L_Y != 'F' || older_R_X != 'F' || older_R_Y != 'F' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
+      static char c = 'A';
       Wire.beginTransmission(8); // transmit to device #8
-      Wire.write('A' + map(L_X,0,255,0,15));           // sends one byte
-      Wire.write('A' + map(L_Y,0,255,0,15));           // sends one byte
-      Wire.write('A' + map(R_X,0,255,0,15));           // sends one byte
-      Wire.write('A' + map(R_Y,0,255,0,15));           // sends one byte
-      Wire.write('\n');           // sends one byte
+      older_L_X = c = 'A' + map(L_X,0,255,0,15);
+      Wire.write(c);
+      Serial.print(c);
+      older_L_Y = c = 'A' + map(L_Y,0,255,0,15);
+      Wire.write(c);
+      Serial.print(c);
+      older_R_X = c = 'A' + map(R_X,0,255,0,15);
+      Wire.write(c);
+      Serial.print(c);
+      older_R_Y = c = 'A' + map(R_Y,0,255,0,15);
+      Wire.write(c);
+      Serial.print(c);
+      Serial.print(F("\r\n"));
       Wire.endTransmission();    // stop transmitting
-      char c = 'A' + map(L_X,0,255,0,15);
-      Serial.print(c);
-      c = 'A' + map(L_Y,0,255,0,15);
-      Serial.print(c);
-      c = 'A' + map(R_X,0,255,0,15);
-      Serial.print(c);
-      c = 'A' + map(R_Y,0,255,0,15);
-      Serial.print(c);
-      c = '\n';
-      Serial.print(c);
     }
 
 
