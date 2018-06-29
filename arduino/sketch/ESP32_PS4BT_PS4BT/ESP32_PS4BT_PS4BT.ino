@@ -70,16 +70,16 @@ void loop() {
     oldR2Value = PS4.getAnalogButton(R2);
 #endif
 
-    static char older_L_X = 0;
-    static char older_L_Y = 0;
-    static char older_R_X = 0;
-    static char older_R_Y = 0;
+    static char older_L_X = 'H';
+    static char older_L_Y = 'H';
+    static char older_R_X = 'H';
+    static char older_R_Y = 'H';
     uint8_t L_X = PS4.getAnalogHat(LeftHatX);
     uint8_t L_Y = PS4.getAnalogHat(LeftHatY);
     uint8_t R_X = PS4.getAnalogHat(RightHatX);
     uint8_t R_Y = PS4.getAnalogHat(RightHatY);
-    if (older_L_X != 'F' || older_L_Y != 'F' || older_R_X != 'F' || older_R_Y != 'F' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
-      static char c = 'A';
+    if (older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
+      static char c = 'H';
       Wire.beginTransmission(8); // transmit to device #8
       older_L_X = c = 'A' + map(L_X,0,255,0,15);
       Wire.write(c);
