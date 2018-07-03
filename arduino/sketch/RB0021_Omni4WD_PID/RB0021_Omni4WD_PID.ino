@@ -13,6 +13,9 @@
 #include <Wire.h>
 //   A4(SDA)とA5(SCL)は、I2C通信に使用する
 
+#include "TwoStickControlMotor.h"
+TwoStickControlMotor spradcon;
+
 /*
 
             \                    /
@@ -59,12 +62,37 @@ void setup() {
   Wire.onReceive(receiveEvent); // register event
   Serial.begin(115200);
   Serial.print(F("Omni start"));
-  Omni.PIDEnable(0.31,0.01,0,10);
+  Omni.PIDEnable(0.31,0.01,0,10); //P比例、I積分、D微分、T時間
+  spradcon.init();
 }
 
 void loop() {
 //  Omni.demoActions(100,1500,500,false);
-  delay(100);
+  int speed = spradcon.getULSpeedMMPS();
+  if(0 > speed){
+    Omni.wheelULSetSpeedMMPS(-speed, DIR_BACKOFF);
+  }else{
+    Omni.wheelULSetSpeedMMPS(speed, DIR_ADVANCE);
+  }
+  speed = spradcon.getLLSpeedMMPS();
+  if(0 > speed){
+    Omni.wheelLLSetSpeedMMPS(-speed, DIR_BACKOFF);
+  }else{
+    Omni.wheelLLSetSpeedMMPS(speed, DIR_ADVANCE);
+  }
+  speed = spradcon.getLRSpeedMMPS();
+  if(0 > speed){
+    Omni.wheelLRSetSpeedMMPS(-speed, DIR_BACKOFF);
+  }else{
+    Omni.wheelLRSetSpeedMMPS(speed, DIR_ADVANCE);
+  }
+  speed = spradcon.getURSpeedMMPS();
+  if(0 > speed){
+    Omni.wheelURSetSpeedMMPS(-speed, DIR_BACKOFF);
+  }else{
+    Omni.wheelURSetSpeedMMPS(speed, DIR_ADVANCE);
+  }
+  delay(10);
 }
 
 // function that executes whenever data is received from master
@@ -76,6 +104,7 @@ void receiveEvent(int howMany) {
     str += String(c);
     Serial.print(c);
   }
+  spradcon.update(str);
   Serial.print(' ');
   Serial.print(str);
   Serial.print(F("\r\n"));
