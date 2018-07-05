@@ -15,7 +15,14 @@
 
 #include "TwoStickControlMotor.h"
 TwoStickControlMotor spradcon;
-
+//以下の定義で進行方向を変える
+#define DIR_A DIR_BACKOFF
+#define DIR_B DIR_ADVANCE
+//#define SILENT /* 有効にするとシリアルに出力しない */
+#ifndef SILENT
+// SILENTが有効なさいに消したい処理をここに書く
+#endif
+#define VERSION_STRING "0.0.1"
 /*
 
             \                    /
@@ -60,8 +67,10 @@ void setup() {
 
   Wire.begin(8);                // join i2c bus with address #8
   Wire.onReceive(receiveEvent); // register event
+#ifndef SILENT
   Serial.begin(115200);
-  Serial.print(F("Omni start"));
+  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+#endif
   Omni.PIDEnable(0.31,0.01,0,10); //P比例、I積分、D微分、T時間
   spradcon.init();
 }
@@ -70,27 +79,27 @@ void loop() {
 //  Omni.demoActions(100,1500,500,false);
   int speed = spradcon.getULSpeedMMPS();
   if(0 > speed){
-    Omni.wheelULSetSpeedMMPS(-speed, DIR_BACKOFF);
+    Omni.wheelULSetSpeedMMPS(-speed, DIR_B);
   }else{
-    Omni.wheelULSetSpeedMMPS(speed, DIR_ADVANCE);
+    Omni.wheelULSetSpeedMMPS(speed, DIR_A);
   }
   speed = spradcon.getLLSpeedMMPS();
   if(0 > speed){
-    Omni.wheelLLSetSpeedMMPS(-speed, DIR_BACKOFF);
+    Omni.wheelLLSetSpeedMMPS(-speed, DIR_B);
   }else{
-    Omni.wheelLLSetSpeedMMPS(speed, DIR_ADVANCE);
+    Omni.wheelLLSetSpeedMMPS(speed, DIR_A);
   }
   speed = spradcon.getLRSpeedMMPS();
   if(0 > speed){
-    Omni.wheelLRSetSpeedMMPS(-speed, DIR_BACKOFF);
+    Omni.wheelLRSetSpeedMMPS(-speed, DIR_B);
   }else{
-    Omni.wheelLRSetSpeedMMPS(speed, DIR_ADVANCE);
+    Omni.wheelLRSetSpeedMMPS(speed, DIR_A);
   }
   speed = spradcon.getURSpeedMMPS();
   if(0 > speed){
-    Omni.wheelURSetSpeedMMPS(-speed, DIR_BACKOFF);
+    Omni.wheelURSetSpeedMMPS(-speed, DIR_B);
   }else{
-    Omni.wheelURSetSpeedMMPS(speed, DIR_ADVANCE);
+    Omni.wheelURSetSpeedMMPS(speed, DIR_A);
   }
   delay(10);
 }
@@ -102,10 +111,14 @@ void receiveEvent(int howMany) {
   while (Wire.available()) {
     char c = Wire.read();
     str += String(c);
+#ifndef SILENT
     Serial.print(c);
+#endif
   }
   spradcon.update(str);
+#ifndef SILENT
   Serial.print(' ');
   Serial.print(str);
   Serial.print(F("\r\n"));
+#endif
 }
