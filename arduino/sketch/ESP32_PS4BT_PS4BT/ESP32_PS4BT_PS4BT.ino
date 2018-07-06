@@ -42,10 +42,14 @@ void setup() {
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
   if (Usb.Init() == -1) {
-    Serial.print(F("\r\nOSC did not start"));
+    Serial.print(F("OSC did not start\r\n"));
     while (1); // Halt
   }
-  Serial.print(F("\r\nPS4 Bluetooth Library Started"));
+  Serial.print(F("PS4 Bluetooth Library Started\r\n"));
+#ifndef SILENT
+  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+  Serial.print(F("\r\n"));
+#endif
   Wire.begin(); // join i2c bus (address optional for master)
 }
 void loop() {
@@ -96,24 +100,24 @@ void loop() {
       if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
         static char c = 'H';
         Wire.beginTransmission(8); // transmit to device #8
-        older_L_X = c = newer_L_X;
-#ifndef SILENT
+        c = older_L_X = newer_L_X;
         Wire.write(c);
+#ifndef SILENT
         Serial.print(c);
 #endif
-        older_L_Y = c = newer_L_Y;
-#ifndef SILENT
+        c = older_L_Y = newer_L_Y;
         Wire.write(c);
+#ifndef SILENT
         Serial.print(c);
 #endif
-        older_R_X = c = newer_R_X;
-#ifndef SILENT
+        c = older_R_X = newer_R_X;
         Wire.write(c);
+#ifndef SILENT
         Serial.print(c);
 #endif
-        older_R_Y = c = newer_R_Y;
-#ifndef SILENT
+        c = older_R_Y = newer_R_Y;
         Wire.write(c);
+#ifndef SILENT
         Serial.print(c);
         Serial.print(F("\r\n"));
 #endif
