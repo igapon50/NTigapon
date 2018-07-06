@@ -42,8 +42,8 @@ public:
   }
 
   int getURSpeedMMPS(){ // wheel4
-    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
-  } 
+    return(m_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) - ((int)m_older_R_X - (int)m_centervalue)));
+  }
 
 private:
     char m_centervalue = 'H';
