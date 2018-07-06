@@ -27,6 +27,12 @@ PS4BT PS4(&Btd, PAIR);
 // After that you can simply create the instance like so and then press the PS button on the device
 //PS4BT PS4(&Btd);
 
+//#define SILENT /* 有効にするとシリアルに出力しない */
+#ifndef SILENT
+// SILENTが有効なさいに消したい処理をここに書く
+#endif
+#define VERSION_STRING "0.0.1"
+
 bool printAngle, printTouch;
 uint8_t oldL2Value, oldR2Value;
 
@@ -78,25 +84,42 @@ void loop() {
     uint8_t L_Y = PS4.getAnalogHat(LeftHatY);
     uint8_t R_X = PS4.getAnalogHat(RightHatX);
     uint8_t R_Y = PS4.getAnalogHat(RightHatY);
-    if (older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117) {
-      static char c = 'H';
-      Wire.beginTransmission(8); // transmit to device #8
-      older_L_X = c = 'A' + map(L_X,0,255,0,15);
-      Wire.write(c);
-      Serial.print(c);
-      older_L_Y = c = 'A' + map(L_Y,0,255,0,15);
-      Wire.write(c);
-      Serial.print(c);
-      older_R_X = c = 'A' + map(R_X,0,255,0,15);
-      Wire.write(c);
-      Serial.print(c);
-      older_R_Y = c = 'A' + map(R_Y,0,255,0,15);
-      Wire.write(c);
-      Serial.print(c);
-      Serial.print(F("\r\n"));
-      Wire.endTransmission();    // stop transmitting
+    if(older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117){
+      static char newer_L_X = 'H';
+      static char newer_L_Y = 'H';
+      static char newer_R_X = 'H';
+      static char newer_R_Y = 'H';
+      newer_L_X = 'A' + map(L_X,0,255,0,15);
+      newer_L_Y = 'A' + map(L_Y,0,255,0,15);
+      newer_R_X = 'A' + map(R_X,0,255,0,15);
+      newer_R_Y = 'A' + map(R_Y,0,255,0,15);
+      if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
+        static char c = 'H';
+        Wire.beginTransmission(8); // transmit to device #8
+        older_L_X = c = newer_L_X;
+#ifndef SILENT
+        Wire.write(c);
+        Serial.print(c);
+#endif
+        older_L_Y = c = newer_L_Y;
+#ifndef SILENT
+        Wire.write(c);
+        Serial.print(c);
+#endif
+        older_R_X = c = newer_R_X;
+#ifndef SILENT
+        Wire.write(c);
+        Serial.print(c);
+#endif
+        older_R_Y = c = newer_R_Y;
+#ifndef SILENT
+        Wire.write(c);
+        Serial.print(c);
+        Serial.print(F("\r\n"));
+#endif
+        Wire.endTransmission();    // stop transmitting
+      }
     }
-
 
     if (PS4.getButtonClick(PS)) {
       Serial.print(F("\r\nPS"));

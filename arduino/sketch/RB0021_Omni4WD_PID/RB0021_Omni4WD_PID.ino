@@ -70,6 +70,7 @@ void setup() {
 #ifndef SILENT
   Serial.begin(115200);
   Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+  Serial.print(F("\r\n"));
 #endif
   Omni.PIDEnable(0.31,0.01,0,10); //P比例、I積分、D微分、T時間
   spradcon.init();
@@ -77,29 +78,61 @@ void setup() {
 
 void loop() {
 //  Omni.demoActions(100,1500,500,false);
-  int speed = spradcon.getULSpeedMMPS();
-  if(0 > speed){
-    Omni.wheelULSetSpeedMMPS(-speed, DIR_B);
-  }else{
-    Omni.wheelULSetSpeedMMPS(speed, DIR_A);
-  }
-  speed = spradcon.getLLSpeedMMPS();
-  if(0 > speed){
-    Omni.wheelLLSetSpeedMMPS(-speed, DIR_B);
-  }else{
-    Omni.wheelLLSetSpeedMMPS(speed, DIR_A);
-  }
-  speed = spradcon.getLRSpeedMMPS();
-  if(0 > speed){
-    Omni.wheelLRSetSpeedMMPS(-speed, DIR_B);
-  }else{
-    Omni.wheelLRSetSpeedMMPS(speed, DIR_A);
-  }
-  speed = spradcon.getURSpeedMMPS();
-  if(0 > speed){
-    Omni.wheelURSetSpeedMMPS(-speed, DIR_B);
-  }else{
-    Omni.wheelURSetSpeedMMPS(speed, DIR_A);
+  static int older_speed_UL = 0;
+  static int older_speed_LL = 0;
+  static int older_speed_LR = 0;
+  static int older_speed_UR = 0;
+  static int newer_speed_UL = 0;
+  static int newer_speed_LL = 0;
+  static int newer_speed_LR = 0;
+  static int newer_speed_UR = 0;
+  newer_speed_UL = spradcon.getULSpeedMMPS();
+  newer_speed_LL = spradcon.getLLSpeedMMPS();
+  newer_speed_LR = spradcon.getLRSpeedMMPS();
+  newer_speed_UR = spradcon.getURSpeedMMPS();
+  if(older_speed_UL != newer_speed_UL || older_speed_LL != newer_speed_LL || older_speed_LR != newer_speed_LR || older_speed_UR != newer_speed_UR){
+    static int speed = 0;
+    speed = older_speed_UL = newer_speed_UL;
+#ifndef SILENT
+    Serial.print(" UL=");
+    Serial.print(speed);
+#endif
+    if(0 > speed){
+      Omni.wheelULSetSpeedMMPS(-speed, DIR_B);
+    }else{
+      Omni.wheelULSetSpeedMMPS(speed, DIR_A);
+    }
+    speed = older_speed_LL = newer_speed_LL;
+#ifndef SILENT
+    Serial.print(" LL=");
+    Serial.print(speed);
+#endif
+    if(0 > speed){
+      Omni.wheelLLSetSpeedMMPS(-speed, DIR_B);
+    }else{
+      Omni.wheelLLSetSpeedMMPS(speed, DIR_A);
+    }
+    speed = older_speed_LR = newer_speed_LR;
+#ifndef SILENT
+    Serial.print(" LR=");
+    Serial.print(speed);
+#endif
+    if(0 > speed){
+      Omni.wheelLRSetSpeedMMPS(-speed, DIR_B);
+    }else{
+      Omni.wheelLRSetSpeedMMPS(speed, DIR_A);
+    }
+    speed = older_speed_UR = newer_speed_UR;
+#ifndef SILENT
+    Serial.print(" UR=");
+    Serial.print(speed);
+    Serial.print(F("\r\n"));
+#endif
+    if(0 > speed){
+      Omni.wheelURSetSpeedMMPS(-speed, DIR_B);
+    }else{
+      Omni.wheelURSetSpeedMMPS(speed, DIR_A);
+    }
   }
   delay(10);
 }
@@ -115,10 +148,15 @@ void receiveEvent(int howMany) {
     Serial.print(c);
 #endif
   }
-  spradcon.update(str);
+  bool ret = spradcon.update(str);
 #ifndef SILENT
   Serial.print(' ');
   Serial.print(str);
+  if(true == ret){
+    Serial.print(" true");
+  }else{
+    Serial.print(" false");
+  }
   Serial.print(F("\r\n"));
 #endif
 }

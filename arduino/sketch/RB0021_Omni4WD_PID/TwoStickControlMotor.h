@@ -6,8 +6,9 @@ class TwoStickControlMotor{
 // Arduinoから使用するClass
 public:
     //初期化処理
-    void init(char centervalue = 'H'){
+    void init(char centervalue = 'H', int magnification = 7){
       m_centervalue = centervalue;
+      m_magnification = magnification;
     }
 
   bool update(String str){
@@ -29,23 +30,24 @@ public:
 //    unsigned int Omni4WD::wheelLRSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
 //    unsigned int Omni4WD::wheelURSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
   int getULSpeedMMPS(){ // wheel1
-    return(((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue));
+    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
   }
 
   int getLLSpeedMMPS(){ // wheel2
-    return(-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue));
+    return(m_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
   }
 
   int getLRSpeedMMPS(){ // wheel3
-    return(((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) - ((int)m_older_R_X - (int)m_centervalue));
+    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) - ((int)m_older_R_X - (int)m_centervalue)));
   }
 
   int getURSpeedMMPS(){ // wheel4
-    return(((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue));
+    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
   } 
 
 private:
     char m_centervalue = 'H';
+    int m_magnification = 7;
     char m_older_L_X = m_centervalue; // 1/3
     //               0 15
     // wheel1 Left : b  f
