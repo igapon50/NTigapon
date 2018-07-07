@@ -25,19 +25,19 @@ public:
   }
 
   int getULSpeedMMPS(){ // wheel1
-    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
+    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) + m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getLLSpeedMMPS(){ // wheel2
-    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
+    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) + m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getLRSpeedMMPS(){ // wheel3
-    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
+    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) + m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getURSpeedMMPS(){ // wheel4
-    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
+    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) + m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
 private:
@@ -45,6 +45,7 @@ private:
     int m_mov_magnification = 10;
     int m_rol_magnification = 3;
     // wheel1とwheel2は、wheel3とwheel4に対して、正回転の向きが逆になるので負号を逆にする
+    // 移動方向をwheel3とwheel4の向きにそろえるので、wheel1とwheel2の負号を逆にする
     char m_older_L_X = m_centervalue; // 1/3
     //               0 15 補正前 補正後
     // wheel1 Left : b  f + -
@@ -57,12 +58,14 @@ private:
     // wheel2 Right: f  b - +
     // wheel3 Left : f  b - -
     // wheel4 Right: f  b - -
+    // wheel1とwheel2は、wheel3とwheel4に対して、正回転の向きが逆になるので負号を逆にする
+    // ロールはwheel1とwheel2の向きにそろえるので、wheel3とwheel4の負号を逆にする
     char m_older_R_X = m_centervalue; // 1/3
     //               0 15 補正前 補正後
-    // wheel1 Left : b  f + -
-    // wheel2 Right: b  f + -
-    // wheel3 Left : f  b - -
-    // wheel4 Right: f  b - -
+    // wheel1 Left : b  f + +
+    // wheel2 Right: b  f + +
+    // wheel3 Left : f  b - +
+    // wheel4 Right: f  b - +
 //    char m_older_R_Y = m_centervalue; // 未使用
 
 protected:

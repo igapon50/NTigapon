@@ -70,7 +70,7 @@ void setup() {
   Serial.print(F("\r\n"));
 #endif
   Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval
-  spradcon.init();
+  spradcon.init('H',6,3);
 }
 
 void loop(){
