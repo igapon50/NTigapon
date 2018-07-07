@@ -7,32 +7,29 @@
 #include <PID_Beta6.h>
 #include <MotorWheel.h>
 #include <Omni4WD.h>
-
-#include <fuzzy_table.h>
-#include <PID_Beta6.h>
 #include <Wire.h>
 //   A4(SDA)とA5(SCL)は、I2C通信に使用する
 
 #include "TwoStickControlMotor.h"
 TwoStickControlMotor spradcon;
 //以下の定義で進行方向を変える
-#define DIR_A DIR_BACKOFF
-#define DIR_B DIR_ADVANCE
+#define DIR_A DIR_ADVANCE
+#define DIR_B DIR_BACKOFF
 //#define SILENT /* 有効にするとシリアルに出力しない */
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
-#define VERSION_STRING "0.0.1"
+#define VERSION_STRING "0.0.2"
 /*
 
-            \                    /
+     ↑     \                    /    ↓ DIR_ADVANCE
    wheel1   \                    /   wheel4
    Left     \                    /   Right
     
     
                               power switch
     
-            /                    \
+     ↑     /                    \    ↓ DIR_ADVANCE
    wheel2   /                    \   wheel3
    Right    /                    \   Left
 
@@ -50,13 +47,13 @@ MotorWheel wheel4(10,11,18,19,&irq4);
  */
 
 irqISR(irq1,isr1);
-MotorWheel wheel1(3,2,4,5,&irq1);
 irqISR(irq2,isr2);
-MotorWheel wheel2(11,12,14,15,&irq2);
 irqISR(irq3,isr3);
-MotorWheel wheel3(9,8,16,17,&irq3);
 irqISR(irq4,isr4);
-MotorWheel wheel4(10,7,18,19,&irq4);
+MotorWheel wheel1(11,12,14,15,&irq1);
+MotorWheel wheel2(3,2,4,5,&irq2);
+MotorWheel wheel3(10,7,6,13,&irq3);
+MotorWheel wheel4(9,8,16,17,&irq4);
 
 Omni4WD Omni(&wheel1,&wheel2,&wheel3,&wheel4);
 
@@ -72,12 +69,30 @@ void setup() {
   Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
   Serial.print(F("\r\n"));
 #endif
-  Omni.PIDEnable(0.31,0.01,0,10); //P比例、I積分、D微分、T時間
+  Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval
   spradcon.init();
 }
 
-void loop() {
-//  Omni.demoActions(100,1500,500,false);
+void loop(){
+#ifndef SILENT
+  Serial.print("*");
+#endif
+//  Omni.demoActions(100,1500,500,false); //unsigned int speedMMPS, unsigned int duration, unsigned int uptime, bool debug
+#if 0 //モーターの位置と方向を検証する
+// 引数dirには、DIR_ADVANCE/DIR_BACKOFFが指定できる
+  Omni.wheelULSetSpeedMMPS(100, DIR_ADVANCE);
+  Omni.delayMS(500,false); //unsigned int ms,bool debug,unsigned char* actBreak
+  Omni.setCarSlow2Stop(500); //unsigned int ms
+  Omni.wheelLLSetSpeedMMPS(100, DIR_ADVANCE);
+  Omni.delayMS(500,false); //unsigned int ms,bool debug,unsigned char* actBreak
+  Omni.setCarSlow2Stop(500); //unsigned int ms
+  Omni.wheelLRSetSpeedMMPS(100, DIR_ADVANCE);
+  Omni.delayMS(500,false); //unsigned int ms,bool debug,unsigned char* actBreak
+  Omni.setCarSlow2Stop(500); //unsigned int ms
+  Omni.wheelURSetSpeedMMPS(100, DIR_ADVANCE);
+  Omni.delayMS(500,false); //unsigned int ms,bool debug,unsigned char* actBreak
+  Omni.setCarSlow2Stop(500); //unsigned int ms
+#endif
   static int older_speed_UL = 0;
   static int older_speed_LL = 0;
   static int older_speed_LR = 0;
@@ -134,7 +149,7 @@ void loop() {
       Omni.wheelURSetSpeedMMPS(speed, DIR_A);
     }
   }
-  delay(10);
+  Omni.delayMS(10,false);
 }
 
 // function that executes whenever data is received from master
@@ -152,10 +167,10 @@ void receiveEvent(int howMany) {
 #ifndef SILENT
   Serial.print(' ');
   Serial.print(str);
-  if(true == ret){
-    Serial.print(" true");
-  }else{
+  if(false == ret){
     Serial.print(" false");
+  }else{
+    Serial.print(" true");
   }
   Serial.print(F("\r\n"));
 #endif

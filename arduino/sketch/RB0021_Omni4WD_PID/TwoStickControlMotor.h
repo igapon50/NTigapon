@@ -6,9 +6,10 @@ class TwoStickControlMotor{
 // Arduinoから使用するClass
 public:
     //初期化処理
-    void init(char centervalue = 'H', int magnification = 7){
+    void init(char centervalue = 'H', int mov_magnification = 10, int rol_magnification = 3){
       m_centervalue = centervalue;
-      m_magnification = magnification;
+      m_mov_magnification = mov_magnification;
+      m_rol_magnification = rol_magnification;
     }
 
   bool update(String str){
@@ -23,49 +24,45 @@ public:
     return(true);
   }
 
-//  unsigned int setMotorAll(unsigned int speedMMPS=0,bool dir=DIR_ADVANCE); //全てのモーターのスピードと方向をセットする
-// 引数dirには、DIR_ADVANCE/DIR_BACKOFFが指摘できる
-//    unsigned int Omni4WD::wheelULSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
-//    unsigned int Omni4WD::wheelLLSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
-//    unsigned int Omni4WD::wheelLRSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
-//    unsigned int Omni4WD::wheelURSetSpeedMMPS(unsigned int speedMMPS,bool dir); //
   int getULSpeedMMPS(){ // wheel1
-    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
+    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getLLSpeedMMPS(){ // wheel2
-    return(m_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) + ((int)m_older_R_X - (int)m_centervalue)));
+    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) + ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getLRSpeedMMPS(){ // wheel3
-    return(m_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) - ((int)m_older_R_X - (int)m_centervalue)));
+    return(m_mov_magnification * (((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
   int getURSpeedMMPS(){ // wheel4
-    return(m_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue) - ((int)m_older_R_X - (int)m_centervalue)));
+    return(m_mov_magnification * (-((int)m_older_L_X - (int)m_centervalue) - ((int)m_older_L_Y - (int)m_centervalue)) - m_rol_magnification * ((int)m_older_R_X - (int)m_centervalue));
   }
 
 private:
     char m_centervalue = 'H';
-    int m_magnification = 7;
+    int m_mov_magnification = 10;
+    int m_rol_magnification = 3;
+    // wheel1とwheel2は、wheel3とwheel4に対して、正回転の向きが逆になるので負号を逆にする
     char m_older_L_X = m_centervalue; // 1/3
-    //               0 15
-    // wheel1 Left : b  f
-    // wheel2 Right: f  b
-    // wheel3 Left : b  f
-    // wheel4 Right: f  b
+    //               0 15 補正前 補正後
+    // wheel1 Left : b  f + -
+    // wheel2 Right: f  b - +
+    // wheel3 Left : b  f + +
+    // wheel4 Right: f  b - -
     char m_older_L_Y = m_centervalue; // 1/3
-    //               0 15
-    // wheel1 Left : f  b
-    // wheel2 Right: f  b
-    // wheel3 Left : f  b
-    // wheel4 Right: f  b
+    //               0 15 補正前 補正後
+    // wheel1 Left : f  b - +
+    // wheel2 Right: f  b - +
+    // wheel3 Left : f  b - -
+    // wheel4 Right: f  b - -
     char m_older_R_X = m_centervalue; // 1/3
-    //               0 15
-    // wheel1 Left : b  f
-    // wheel2 Right: b  f
-    // wheel3 Left : f  b
-    // wheel4 Right: f  b
+    //               0 15 補正前 補正後
+    // wheel1 Left : b  f + -
+    // wheel2 Right: b  f + -
+    // wheel3 Left : f  b - -
+    // wheel4 Right: f  b - -
 //    char m_older_R_Y = m_centervalue; // 未使用
 
 protected:
