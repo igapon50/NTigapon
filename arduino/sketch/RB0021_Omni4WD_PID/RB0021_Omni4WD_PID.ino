@@ -12,27 +12,27 @@
 
 #include "TwoStickControlMotor.h"
 TwoStickControlMotor spradcon;
-//以下の定義で進行方向を変える
-#define DIR_A DIR_ADVANCE
-#define DIR_B DIR_BACKOFF
 //#define SILENT /* 有効にするとシリアルに出力しない */
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
 #define VERSION_STRING "0.0.2"
-/*
+//以下の定義で進行方向を変える
+#define DIR_A DIR_ADVANCE
+#define DIR_B DIR_BACKOFF
 
-     ↑     \                    /    ↓ DIR_ADVANCE
+/*
+ 矢印の方向が各モーターのDIR_ADVANCEとなり、反対方向はDIR_BACKOFFとなる
+     ↑     \                    /    ↓
    wheel1   \                    /   wheel4
    Left     \                    /   Right
-    
-    
+
+
                               power switch
-    
-     ↑     /                    \    ↓ DIR_ADVANCE
+
+     ↑     /                    \    ↓
    wheel2   /                    \   wheel3
    Right    /                    \   Left
-
  */
 
 /*
