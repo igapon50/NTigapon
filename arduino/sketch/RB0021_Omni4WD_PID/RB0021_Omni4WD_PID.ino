@@ -69,8 +69,8 @@ void setup() {
   Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
   Serial.print(F("\r\n"));
 #endif
-  Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval
-  spradcon.init('H',6,3);
+  Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval//P比例,I積分,D微分,T時間
+  spradcon.init('H',10,10);
 }
 
 void loop(){
