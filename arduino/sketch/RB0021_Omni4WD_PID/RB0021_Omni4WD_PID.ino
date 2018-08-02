@@ -70,7 +70,7 @@ void setup() {
   Serial.print(F("\r\n"));
 #endif
   Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval//P比例,I積分,D微分,T時間
-  spradcon.init('H',10,10);
+  spradcon.init();
 }
 
 void loop(){
@@ -149,7 +149,7 @@ void loop(){
       Omni.wheelURSetSpeedMMPS(speed, DIR_A);
     }
   }
-  Omni.delayMS(10,false);
+  Omni.delayMS(5,false);
 }
 
 // function that executes whenever data is received from master

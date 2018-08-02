@@ -1,12 +1,16 @@
 #ifndef _TwoStickControlMotor_h
 #define _TwoStickControlMotor_h
 
+#define DEF_centervalue 'H'
+#define DEF_mov_magnification 10
+#define DEF_rol_magnification 10
+
 class TwoStickControlMotor{
 // ゲームコントローラのスティック二本操作によるモーター制御変数クラス
 // Arduinoから使用するClass
 public:
     //初期化処理
-    void init(char centervalue = 'H', int mov_magnification = 10, int rol_magnification = 3){
+    void init(char centervalue = DEF_centervalue, int mov_magnification = DEF_mov_magnification, int rol_magnification = DEF_rol_magnification){
       m_centervalue = centervalue;
       m_mov_magnification = mov_magnification;
       m_rol_magnification = rol_magnification;
@@ -41,9 +45,9 @@ public:
   }
 
 private:
-    char m_centervalue = 'H';
-    int m_mov_magnification = 10;
-    int m_rol_magnification = 3;
+    char m_centervalue = DEF_centervalue;
+    int m_mov_magnification = DEF_mov_magnification;
+    int m_rol_magnification = DEF_rol_magnification;
     // wheel1とwheel2は、wheel3とwheel4に対して、正回転の向きが逆になるので負号を逆にする
     // 移動方向をwheel3とwheel4の向きにそろえるので、wheel1とwheel2の負号を逆にする
     char m_older_L_X = m_centervalue; // 1/3
