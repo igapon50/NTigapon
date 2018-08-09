@@ -27,7 +27,7 @@ PS3BT PS3(&Btd, 0x00, 0x1B, 0xDC, 0x08, 0xB9, 0xA7); // This will also store the
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
-#define VERSION_STRING "0.0.1"
+#define VERSION_STRING "0.0.2"
 
 bool printTemperature, printAngle;
 
@@ -41,6 +41,11 @@ void setup() {
     while (1); //halt
   }
   Serial.print(F("\r\nPS3 Bluetooth Library Started"));
+#ifndef SILENT
+  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
+  Serial.print(F("\r\n"));
+#endif
+  Wire.begin(); // join i2c bus (address optional for master)
 }
 void loop() {
   Usb.Task();
@@ -79,6 +84,9 @@ void loop() {
     uint8_t L_Y = PS3.getAnalogHat(LeftHatY);
     uint8_t R_X = PS3.getAnalogHat(RightHatX);
     uint8_t R_Y = PS3.getAnalogHat(RightHatY);
+    if((L_X == 0 && L_Y == 0) || (R_X == 0 && R_Y == 0)){ // あり得ない値が来たら無視する
+      return;
+    }
     if(older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117){
       static char newer_L_X = 'H';
       static char newer_L_Y = 'H';
