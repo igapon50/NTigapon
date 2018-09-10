@@ -3,7 +3,6 @@
  For more information visit my blog: http://blog.tkjelectronics.dk/ or
  send me an e-mail:  kristianl@tkjelectronics.com
  */
-
 #include <PS3USB.h>
 
 // Satisfy the IDE, which needs to see the include statment in the ino too.
@@ -13,7 +12,9 @@
 #include <SPI.h>
 #include <Wire.h>
 //   A4(SDA)とA5(SCL)は、I2C通信に使用する
+#include <SoftwareSerial.h>
 
+SoftwareSerial IM920Serial(2, 3); // ソフトウエアシリアル
 USB Usb;
 /* You can create the instance of the class in two ways */
 PS3USB PS3(&Usb); // This will just create the instance
@@ -43,10 +44,12 @@ void setup() {
   Serial.print(F("\r\n"));
 #endif
   Wire.begin(); // join i2c bus (address optional for master)
+  IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
 }
 void loop() {
   Usb.Task();
-
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
   if (PS3.PS3Connected || PS3.PS3NavigationConnected) {
 #if 0
     if (PS3.getAnalogHat(LeftHatX) > 137 || PS3.getAnalogHat(LeftHatX) < 117 || PS3.getAnalogHat(LeftHatY) > 137 || PS3.getAnalogHat(LeftHatY) < 117 || PS3.getAnalogHat(RightHatX) > 137 || PS3.getAnalogHat(RightHatX) < 117 || PS3.getAnalogHat(RightHatY) > 137 || PS3.getAnalogHat(RightHatY) < 117) {
@@ -98,21 +101,27 @@ void loop() {
         Wire.beginTransmission(8); // transmit to device #8
         c = older_L_X = newer_L_X;
         Wire.write(c);
+        IM920Serial.print("TXDA ");//IM920 可変長データ送信
+        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_L_Y = newer_L_Y;
         Wire.write(c);
+        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_R_X = newer_R_X;
         Wire.write(c);
+        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_R_Y = newer_R_Y;
         Wire.write(c);
+        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+        IM920Serial.print("¥r\n");//CR 1 文字を送信
 #ifndef SILENT
         Serial.print(c);
         Serial.print(F("\r\n"));
