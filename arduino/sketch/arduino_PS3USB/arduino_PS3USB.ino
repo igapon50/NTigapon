@@ -5,22 +5,29 @@
  */
 #include <PS3USB.h>
 
+//#define Enable_I2C
+#define Enable_SoftwareSerial
+//#define SILENT /* 有効にするとシリアルに出力しない */
+
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
 #endif
 #include <SPI.h>
+#ifdef Enable_I2C
 #include <Wire.h>
 //   A4(SDA)とA5(SCL)は、I2C通信に使用する
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
 #include <SoftwareSerial.h>
-
 SoftwareSerial IM920Serial(2, 3); // ソフトウエアシリアル
+#define BUSY_PIN 10
+#endif//Enable_SoftwareSerial
 USB Usb;
 /* You can create the instance of the class in two ways */
 PS3USB PS3(&Usb); // This will just create the instance
 //PS3USB PS3(&Usb,0x00,0x15,0x83,0x3D,0x0A,0x57); // This will also store the bluetooth address - this can be obtained from the dongle when running the sketch
 
-//#define SILENT /* 有効にするとシリアルに出力しない */
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
@@ -43,13 +50,20 @@ void setup() {
   Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
   Serial.print(F("\r\n"));
 #endif
+#ifdef Enable_I2C
   Wire.begin(); // join i2c bus (address optional for master)
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
   IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
+  pinMode(BUSY_PIN, INPUT); // Busy 信号 Pin10 入力
+#endif//Enable_SoftwareSerial
 }
 void loop() {
   Usb.Task();
+#ifdef Enable_SoftwareSerial
   if (IM920Serial.available()) Serial.write(IM920Serial.read());
   if (Serial.available()) IM920Serial.write(Serial.read());
+#endif//Enable_SoftwareSerial
   if (PS3.PS3Connected || PS3.PS3NavigationConnected) {
 #if 0
     if (PS3.getAnalogHat(LeftHatX) > 137 || PS3.getAnalogHat(LeftHatX) < 117 || PS3.getAnalogHat(LeftHatY) > 137 || PS3.getAnalogHat(LeftHatY) < 117 || PS3.getAnalogHat(RightHatX) > 137 || PS3.getAnalogHat(RightHatX) < 117 || PS3.getAnalogHat(RightHatY) > 137 || PS3.getAnalogHat(RightHatY) < 117) {
@@ -98,35 +112,62 @@ void loop() {
       newer_R_Y = 'A' + map(R_Y,0,255,0,15);
       if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
         static char c = 'H';
-        Wire.beginTransmission(8); // transmit to device #8
         c = older_L_X = newer_L_X;
+#ifdef Enable_I2C
+        Wire.beginTransmission(8); // transmit to device #8
         Wire.write(c);
-        IM920Serial.print("TXDA ");//IM920 可変長データ送信
-        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
+        static int busy = digitalRead(BUSY_PIN); // Busy 信号 読み取り
+        if(0 != busy){
+          IM920Serial.print("TXDA ");//IM920 可変長データ送信
+          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+        }
+#endif//Enable_SoftwareSerial
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_L_Y = newer_L_Y;
+#ifdef Enable_I2C
         Wire.write(c);
-        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
+        if(0 != busy){
+          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+        }
+#endif//Enable_SoftwareSerial
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_R_X = newer_R_X;
+#ifdef Enable_I2C
         Wire.write(c);
-        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
+        if(0 != busy){
+          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+        }
+#endif//Enable_SoftwareSerial
 #ifndef SILENT
         Serial.print(c);
 #endif
         c = older_R_Y = newer_R_Y;
+#ifdef Enable_I2C
         Wire.write(c);
-        IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-        IM920Serial.print("¥r\n");//CR 1 文字を送信
+#endif// Enable_I2C
+#ifdef Enable_SoftwareSerial
+        if(0 != busy){
+          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+          IM920Serial.print("¥r\n");//CR 1 文字を送信
+        }
+#endif//Enable_SoftwareSerial
 #ifndef SILENT
         Serial.print(c);
         Serial.print(F("\r\n"));
 #endif
+#ifdef Enable_I2C
         Wire.endTransmission();    // stop transmitting
+#endif// Enable_I2C
       }
     }
 
