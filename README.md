@@ -14,7 +14,21 @@ Arduino sketch and ESP-IDF project.
 sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット名]とする
 
 - arduino
-    - _ps4_rb0021
+    - arduino_PS3USB / ESP32_PS3BT_PS3BT
+        - (作成中)2018/12/12-13に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802018)に出展した作品のArduino sketchである
+        - PS3BLE PS3USB PS4BLEリモコン
+            - 以下のコントロールを使用する
+                - PS
+                  - 切断/停止
+                - 左スティック(移動)
+                  - LeftHatX/LeftHatY
+                - 右スティック(ロール)
+                  - RightHatX/RightHatY
+                - L2/L1
+                  - イカ潜伏(移動速度に倍率をかける)
+                - LELECT/START
+                  - キャリブレーション(停止位置更新)
+    - RB0021_Omni4WD_PID / ESP32_PS4BT_PS4BT
         - 2018/7/7-8に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22018)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT金沢2018紹介ペーパー](https://docs.google.com/presentation/d/1cxR8Wfju9DjyEiWv8WDgCyZg7StgXhj7UrDWSYJ_swc/edit#slide=id.g3c7cb5c890_0_0)参照のこと
         - Nexus robot製品の[メカナムホイールロボット](http://www.vstone.co.jp/products/nexusrobot/download/nexus_10021.pdf)をベースにする
@@ -32,10 +46,6 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
                   - LeftHatX/LeftHatY
                 - 右スティック(ロール)
                   - RightHatX/RightHatY
-                - L2/L1
-                  - イカ潜伏(移動速度に倍率をかける)
-                - LELECT/START
-                  - キャリブレーション(停止位置更新)
     - arduino_wii_Roadster
         - 2017/12/16-17に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802017)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT加賀向け資料](https://1drv.ms/p/s!AnC3THzAcjDOgTqdw6XDkZbDYBN4)参照のこと
@@ -80,8 +90,8 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
         - ROADSTERにサーボ×1とESC×1を追加し、ESP32で制御する
         - スマホアプリの[Blynk](https://www.blynk.cc/)でESP32をコントロールする
     - モジュール動作確認用各種スケッチ
-        - RB0021_Omni4WD_PID
-            - 
+        - im920_serial_tx
+            - インタープラン IM920による送受信
         - arduino_HS-SR04_Ultrasonic
             - HS-SR04超音波センサ二つ測定
         - arduino_I2C
