@@ -21,7 +21,7 @@
 #ifdef Enable_SoftwareSerial
 #include <SoftwareSerial.h>
 SoftwareSerial IM920Serial(2, 3); // ソフトウエアシリアル
-#define BUSY_PIN 10
+#define BUSY_PIN 4
 #endif//Enable_SoftwareSerial
 USB Usb;
 /* You can create the instance of the class in two ways */
@@ -31,7 +31,7 @@ PS3USB PS3(&Usb); // This will just create the instance
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
-#define VERSION_STRING "0.0.1"
+#define VERSION_STRING "0.0.2"
 
 bool printAngle;
 uint8_t state = 0;
@@ -55,7 +55,7 @@ void setup() {
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
   IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
-  pinMode(BUSY_PIN, INPUT); // Busy 信号 Pin10 入力
+  pinMode(BUSY_PIN, INPUT); // Busy 信号入力
 #endif//Enable_SoftwareSerial
 }
 void loop() {
@@ -89,7 +89,6 @@ void loop() {
       }
     }
 #endif
-
     static char older_L_X = 'H';
     static char older_L_Y = 'H';
     static char older_R_X = 'H';
@@ -119,9 +118,13 @@ void loop() {
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
         static int busy = digitalRead(BUSY_PIN); // Busy 信号 読み取り
-        if(0 != busy){
+        if(0 == busy){
           IM920Serial.print("TXDA ");//IM920 可変長データ送信
           IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
+#ifndef SILENT
+        }else{
+          Serial.print(F("busy "));
+#endif
         }
 #endif//Enable_SoftwareSerial
 #ifndef SILENT
@@ -132,7 +135,7 @@ void loop() {
         Wire.write(c);
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
-        if(0 != busy){
+        if(0 == busy){
           IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
         }
 #endif//Enable_SoftwareSerial
@@ -144,7 +147,7 @@ void loop() {
         Wire.write(c);
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
-        if(0 != busy){
+        if(0 == busy){
           IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
         }
 #endif//Enable_SoftwareSerial
@@ -156,9 +159,9 @@ void loop() {
         Wire.write(c);
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
-        if(0 != busy){
+        if(0 == busy){
           IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-          IM920Serial.print("¥r\n");//CR 1 文字を送信
+          IM920Serial.print(F("\r\n"));//CR 1 文字を送信
         }
 #endif//Enable_SoftwareSerial
 #ifndef SILENT
@@ -171,6 +174,7 @@ void loop() {
       }
     }
 
+#if 0
     if (PS3.getButtonClick(PS))
       Serial.print(F("\r\nPS"));
 
@@ -259,5 +263,6 @@ void loop() {
     if (state > 7)
       state = 0;
     delay(1000);
+#endif
   }
 }
