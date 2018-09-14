@@ -56,6 +56,51 @@ void setup() {
 #ifdef Enable_SoftwareSerial
   IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
   pinMode(BUSY_PIN, INPUT); // Busy 信号入力
+
+#ifndef SILENT
+  IM920Serial.print(F("rdid\r\n"));//固有ID
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=固有ID\r\n"));
+  IM920Serial.print(F("rrid\r\n"));//受信ID
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=受信ID\r\n"));
+  IM920Serial.print(F("rdnn\r\n"));//ノード番号
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=ノード番号\r\n"));
+//  IM920Serial.print(F("\r\n"));//シリアル通信速度
+//  Serial.print(F("=シリアル通信速度\r\n"));
+  IM920Serial.print(F("rdpo\r\n"));//送信出力
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=送信出力\r\n"));
+  IM920Serial.print(F("rdrt\r\n"));//無線通信速度
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=無線通信速度\r\n"));
+  IM920Serial.print(F("rstm\r\n"));//スリープ時間
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=スリープ時間\r\n"));
+  IM920Serial.print(F("rwtm\r\n"));//動作時間
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=動作時間\r\n"));
+  IM920Serial.print(F("rprm\r\n"));//アンサーバック/キャラクタ入出力/簡易中継
+  delay(100);
+  if (IM920Serial.available()) Serial.write(IM920Serial.read());
+  if (Serial.available()) IM920Serial.write(Serial.read());
+  Serial.print(F("=アンサーバック/キャラクタ入出力/簡易中継\r\n"));
+#endif
 #endif//Enable_SoftwareSerial
 }
 void loop() {
