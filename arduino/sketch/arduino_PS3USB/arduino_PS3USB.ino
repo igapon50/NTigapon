@@ -47,17 +47,26 @@ void setup() {
   }
   Serial.print(F("\r\nPS3 USB Library Started"));
 #ifndef SILENT
-  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
-  Serial.print(F("\r\n"));
+  Serial.print(F(__DATE__ "/" __TIME__ "\r\n"));
+  Serial.print(F(__FILE__ "/" VERSION_STRING "\r\n"));
 #endif
 #ifdef Enable_I2C
   Wire.begin(); // join i2c bus (address optional for master)
 #endif// Enable_I2C
 #ifdef Enable_SoftwareSerial
-  IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
+// ソフトウエアシリアル 初期化
+//  IM920Serial.begin(1200); // sbrt 0
+//  IM920Serial.begin(2400); // sbrt 1
+//  IM920Serial.begin(4800); // sbrt 2
+//  IM920Serial.begin(9600); // sbrt 3
+//  IM920Serial.begin(19200); // sbrt 4
+  IM920Serial.begin(38400); // sbrt 5
+//  IM920Serial.begin(57600); // sbrt 6
+//  IM920Serial.begin(115200); // sbrt 7
   pinMode(BUSY_PIN, INPUT); // Busy 信号入力
 
 #ifndef SILENT
+#if 0
   IM920Serial.print(F("rdid\r\n"));//固有ID
   delay(100);
   if (IM920Serial.available()) Serial.write(IM920Serial.read());
@@ -100,6 +109,7 @@ void setup() {
   if (IM920Serial.available()) Serial.write(IM920Serial.read());
   if (Serial.available()) IM920Serial.write(Serial.read());
   Serial.print(F("=アンサーバック/キャラクタ入出力/簡易中継\r\n"));
+#endif
 #endif
 #endif//Enable_SoftwareSerial
 }

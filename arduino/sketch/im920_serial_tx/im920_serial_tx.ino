@@ -17,10 +17,12 @@ int vol=0, vol_new=0, diff, busy;
 #define VERSION_STRING "0.0.1"
 
 void setup() {
+#ifndef SILENT
   Serial.begin(115200);
   while(!Serial);// シリアルポートの準備ができるのを待つ(Leonardoのみ必要)
   Serial.print(F(__DATE__ "/" __TIME__ "\r\n"));
   Serial.print(F(__FILE__ "/" VERSION_STRING "\r\n"));
+#endif// SILENT
 
 #ifdef Enable_I2C
   Wire.begin(); // join i2c bus (address optional for master)
@@ -39,17 +41,30 @@ void setup() {
 
 void loop() {
 #if 1
-  if(IM920Serial.available()){
+  String str = "";
+  while(IM920Serial.available()){
     static char c = 'H';
     c = IM920Serial.read();
+    str += String(c);
+#ifndef SILENT
     Serial.write(c);
+#endif// SILENT
+  }
+#ifndef SILENT
+  if(str.length()){
+    String m_str = str.substring(str.indexOf(':')+1);
+    Serial.print(m_str);
 #ifdef Enable_I2C
     Wire.beginTransmission(8); // transmit to device #8
-    Wire.write(c);
+    Wire.write(m_str.charAt(0));
+    Wire.write(m_str.charAt(1));
+    Wire.write(m_str.charAt(2));
+    Wire.write(m_str.charAt(3));
     Wire.endTransmission();    // stop transmitting
 #endif// Enable_I2C
   }
   if(Serial.available()) IM920Serial.write(Serial.read());
+#endif// SILENT
 
 #else
  vol_new = analogRead(0)/4; // Analog_0 データ取得 8bit に変換
