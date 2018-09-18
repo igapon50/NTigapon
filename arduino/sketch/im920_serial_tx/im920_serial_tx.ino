@@ -25,7 +25,15 @@ void setup() {
 #ifdef Enable_I2C
   Wire.begin(); // join i2c bus (address optional for master)
 #endif// Enable_I2C
-  IM920Serial.begin(19200); // ソフトウエアシリアル 初期化
+// ソフトウエアシリアル 初期化
+//  IM920Serial.begin(1200); // sbrt 0
+//  IM920Serial.begin(2400); // sbrt 1
+//  IM920Serial.begin(4800); // sbrt 2
+//  IM920Serial.begin(9600); // sbrt 3
+//  IM920Serial.begin(19200); // sbrt 4
+  IM920Serial.begin(38400); // sbrt 5
+//  IM920Serial.begin(57600); // sbrt 6
+//  IM920Serial.begin(115200); // sbrt 7
   pinMode(BUSY_PIN, INPUT); // Busy 信号 Pin10 入力
 }
 
