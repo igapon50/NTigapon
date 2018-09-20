@@ -5,7 +5,7 @@
  */
 
 #include <PS3BT.h>
-#include <usbhub.h>
+//#include <usbhub.h>
 
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
