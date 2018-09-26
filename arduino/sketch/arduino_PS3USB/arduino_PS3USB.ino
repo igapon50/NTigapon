@@ -44,12 +44,10 @@ SoftwareSerial IM920Serial(IM920_RX_PIN, IM920_TX_PIN); // ソフトウエアシ
 #endif// Enable_SoftwareSerial
 
 USB Usb;
-/* You can create the instance of the class in two ways */
 PS3USB PS3(&Usb); // This will just create the instance
-//PS3USB PS3(&Usb,0x00,0x15,0x83,0x3D,0x0A,0x57); // This will also store the bluetooth address - this can be obtained from the dongle when running the sketch
 
-bool printAngle;
-uint8_t state = 0;
+//bool printAngle;
+//uint8_t state = 0;
 
 void setup() {
 // シリアル通信の準備
@@ -60,7 +58,7 @@ void setup() {
   Serial.print(F(__DATE__ "/" __TIME__ "\r\n"));
   Serial.print(F(__FILE__ "/" VERSION_STRING "\r\n"));
 
-// USB Host shieldの準備
+// USB Host sheildの準備
   if (Usb.Init() == -1) {
     Serial.print(F("OSC did not start\r\n"));
     while (1); //halt
@@ -101,14 +99,10 @@ void loop() {
       return;
     }
     if(older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117){
-      static char newer_L_X = 'H';
-      static char newer_L_Y = 'H';
-      static char newer_R_X = 'H';
-      static char newer_R_Y = 'H';
-      newer_L_X = 'A' + map(L_X,0,255,0,15);
-      newer_L_Y = 'A' + map(L_Y,0,255,0,15);
-      newer_R_X = 'A' + map(R_X,0,255,0,15);
-      newer_R_Y = 'A' + map(R_Y,0,255,0,15);
+      char newer_L_X = 'A' + map(L_X,0,255,0,14);
+      char newer_L_Y = 'A' + map(L_Y,0,255,0,14);
+      char newer_R_X = 'A' + map(R_X,0,255,0,14);
+      char newer_R_Y = 'A' + map(R_Y,0,255,0,14);
       if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
         static char c = 'H';
         c = older_L_X = newer_L_X;
