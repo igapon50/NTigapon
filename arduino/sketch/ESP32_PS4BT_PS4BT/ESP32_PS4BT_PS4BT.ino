@@ -12,7 +12,7 @@
 #ifndef SILENT
 // SILENTが有効なさいに消したい処理をここに書く
 #endif
-#define VERSION_STRING "0.0.2"
+#define VERSION_STRING "0.0.3"
 
 // Satisfy the IDE, which needs to see the include statment in the ino too.
 #ifdef dobogusinclude
@@ -101,78 +101,46 @@ void loop() {
     if((L_X == 0 && L_Y == 0) || (R_X == 0 && R_Y == 0)){ // あり得ない値が来たら無視する
       return;
     }
-    if(older_L_X != 'H' || older_L_Y != 'H' || older_R_X != 'H' || older_R_Y != 'H' || L_X > 137 || L_X < 117 || L_Y > 137 || L_Y < 117 || R_X > 137 || R_X < 117 || R_Y > 137 || R_Y < 117){
-      char newer_L_X = 'A' + map(L_X,0,255,0,14);
-      char newer_L_Y = 'A' + map(L_Y,0,255,0,14);
-      char newer_R_X = 'A' + map(R_X,0,255,0,14);
-      char newer_R_Y = 'A' + map(R_Y,0,255,0,14);
-      if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
-        static char c = 'H';
-        c = older_L_X = newer_L_X;
+    char newer_L_X = 'A' + map(L_X,0,255,0,14);
+    char newer_L_Y = 'A' + map(L_Y,0,255,0,14);
+    char newer_R_X = 'A' + map(R_X,0,255,0,14);
+    char newer_R_Y = 'A' + map(R_Y,0,255,0,14);
+    if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
+      static String m_str = "HHHH";
+      m_str[0] = older_L_X = newer_L_X;
+      m_str[1] = older_L_Y = newer_L_Y;
+      m_str[2] = older_R_X = newer_R_X;
+      m_str[3] = older_R_Y = newer_R_Y;
 #ifdef Enable_I2C
-        Wire.beginTransmission(8); // transmit to device #8
-        Wire.write(c);
-#endif// Enable_I2C
-#ifdef Enable_SoftwareSerial
-        static int busy = digitalRead(IM920_BUSY_PIN); // Busy 信号 読み取り
-        if(0 == busy){
-          IM920Serial.print("TXDA ");//IM920 可変長データ送信
-          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-#ifndef SILENT
-        }else{
-          Serial.print(F("busy "));
-#endif
-        }
-#endif//Enable_SoftwareSerial
-#ifndef SILENT
-        Serial.print(c);
-#endif
-        c = older_L_Y = newer_L_Y;
-#ifdef Enable_I2C
-        Wire.write(c);
-#endif// Enable_I2C
-#ifdef Enable_SoftwareSerial
-        if(0 == busy){
-          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-        }
-#endif//Enable_SoftwareSerial
-#ifndef SILENT
-        Serial.print(c);
-#endif
-        c = older_R_X = newer_R_X;
-#ifdef Enable_I2C
-        Wire.write(c);
-#endif// Enable_I2C
-#ifdef Enable_SoftwareSerial
-        if(0 == busy){
-          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-        }
-#endif//Enable_SoftwareSerial
-#ifndef SILENT
-        Serial.print(c);
-#endif
-        c = older_R_Y = newer_R_Y;
-#ifdef Enable_I2C
-        Wire.write(c);
-#endif// Enable_I2C
-#ifdef Enable_SoftwareSerial
-        if(0 == busy){
-          IM920Serial.print(c,HEX);//アナログ値を HEX フォーマットで送信
-          IM920Serial.print(F("\r\n"));//CR 1 文字を送信
-        }
-#endif//Enable_SoftwareSerial
-#ifndef SILENT
-        Serial.print(c);
-        Serial.print(F("\r\n"));
-#endif
-#ifdef Enable_I2C
-        Wire.endTransmission();    // stop transmitting
-#endif// Enable_I2C
+      Wire.beginTransmission(8); //transmit to device #8
+      for(int count = 0; count < 4; count++){
+        Wire.write(m_str.charAt(count));
       }
+      Wire.endTransmission(); //stop transmitting
+#endif// Enable_I2C
+#ifndef SILENT
+      Serial.println(m_str);
+#endif
+#ifdef Enable_SoftwareSerial
+      static int busy = digitalRead(IM920_BUSY_PIN); //Busy 信号 読み取り
+      if(0 == busy){
+        IM920Serial.print("TXDA "); //IM920 可変長データ送信
+        for(int count = 0; count < 4; count++){
+          IM920Serial.print(m_str.charAt(count),HEX); //アナログ値を HEX フォーマットで送信
+        }
+        IM920Serial.print(F("\r\n"));
+#ifndef SILENT
+      }else{
+        Serial.print(F("IM920 BUSY "));
+#endif
+      }
+#endif//Enable_SoftwareSerial
     }
 
     if (PS4.getButtonClick(PS)) {
+#ifndef SILENT
       Serial.print(F("\r\nPS"));
+#endif
       PS4.disconnect();
     }
   }
