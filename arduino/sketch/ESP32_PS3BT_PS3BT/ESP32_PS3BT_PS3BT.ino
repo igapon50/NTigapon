@@ -23,6 +23,7 @@
 #ifdef Enable_I2C
 #include <Wire.h>
 // A4(SDA)とA5(SCL)は、I2C通信に使用する
+static const int i2cAddress = 8;
 #endif// Enable_I2C
 
 #ifdef Enable_SoftwareSerial
@@ -67,7 +68,13 @@ void setup() {
 
 #ifdef Enable_I2C
 // I2Cの準備
+#ifdef ARDUINO_ESP32_DEV
+  int SDA32 = 21;
+  int SCL32 = 22;
+  Wire.begin(SDA32, SCL32);
+#else
   Wire.begin(); // join i2c bus (address optional for master)
+#endif// ARDUINO_ESP32_DEV
 #endif// Enable_I2C
 
 #ifdef Enable_SoftwareSerial
@@ -87,10 +94,10 @@ void loop() {
   if (Serial.available()) IM920Serial.write(Serial.read());
 #endif//Enable_SoftwareSerial
   if (PS3.PS3Connected || PS3.PS3NavigationConnected) {
-    static char older_L_X = 'H';
-    static char older_L_Y = 'H';
-    static char older_R_X = 'H';
-    static char older_R_Y = 'H';
+    static char older_L_X = 'A';
+    static char older_L_Y = 'A';
+    static char older_R_X = 'A';
+    static char older_R_Y = 'A';
     uint8_t L_X = PS3.getAnalogHat(LeftHatX);
     uint8_t L_Y = PS3.getAnalogHat(LeftHatY);
     uint8_t R_X = PS3.getAnalogHat(RightHatX);
@@ -98,22 +105,22 @@ void loop() {
     if((L_X == 0 && L_Y == 0) || (R_X == 0 && R_Y == 0)){ //あり得ない値が来たら無視する
       return;
     }
-    char newer_L_X = 'A' + map(L_X,0,255,0,14);
-    char newer_L_Y = 'A' + map(L_Y,0,255,0,14);
-    char newer_R_X = 'A' + map(R_X,0,255,0,14);
-    char newer_R_Y = 'A' + map(R_Y,0,255,0,14);
+    char newer_L_X = 'A' + map(128 < L_X ? --L_X : L_X,0,255,0,15);
+    char newer_L_Y = 'A' + map(128 < L_Y ? --L_Y : L_Y,0,255,0,15);
+    char newer_R_X = 'A' + map(128 < R_X ? --R_X : R_X,0,255,0,15);
+    char newer_R_Y = 'A' + map(128 < R_Y ? --R_Y : R_Y,0,255,0,15);
     if(older_L_X != newer_L_X || older_L_Y != newer_L_Y || older_R_X != newer_R_X || older_R_Y != newer_R_Y){
-      static String m_str = "HHHH";
+      static String m_str = "AAAA";
       m_str[0] = older_L_X = newer_L_X;
       m_str[1] = older_L_Y = newer_L_Y;
       m_str[2] = older_R_X = newer_R_X;
       m_str[3] = older_R_Y = newer_R_Y;
 #ifdef Enable_I2C
-      Wire.beginTransmission(8); //transmit to device #8
+      Wire.beginTransmission(i2cAddress);
       for(int count = 0; count < 4; count++){
         Wire.write(m_str.charAt(count));
       }
-      Wire.endTransmission(); //stop transmitting
+      Wire.endTransmission();
 #endif// Enable_I2C
 #ifndef SILENT
       Serial.println(m_str);
