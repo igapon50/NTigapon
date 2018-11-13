@@ -14,9 +14,12 @@ Arduino sketch and ESP-IDF project.
 sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット名]とする
 
 - arduino
-    - arduino_PS3USB / ESP32_PS3BT_PS3BT
+    - RB0021_Omni4WD_PID : i2cから受信してモーター制御スケッチ
+    - im920_serial_tx : IM920から受信してi2cに送信スケッチ
+    - arduino_PS3USB / arduino_PS4USB / ESP32_PS3BT_PS3BT / ESP32_PS4BT_PS4BT : PSコントローラから受信してIM920に送信スケッチ
         - (作成中)2018/12/12-13に開催された[NT加賀](http://wiki.nicotech.jp/nico_tech/index.php?NT%E5%8A%A0%E8%B3%802018)に出展した作品のArduino sketchである
-        - PS3BLE PS3USB PS4BLEリモコン
+        - PS3 と PS4 コントローラのUSBやBLE接続が使用できる(ただしスケッチを変える必要がある)
+        - IM920とのやり取りにSoftwareSerialを使用するため、SoftwareSerialに対応していないESP32は使えなかった。
             - 以下のコントロールを使用する
                 - PS
                   - 切断/停止
@@ -24,11 +27,8 @@ sketch名は[マイコンチップ名]-[コントローラ名]-[ターゲット�
                   - LeftHatX/LeftHatY
                 - 右スティック(ロール)
                   - RightHatX/RightHatY
-                - L2/L1
-                  - イカ潜伏(移動速度に倍率をかける)
-                - LELECT/START
-                  - キャリブレーション(停止位置更新)
-    - RB0021_Omni4WD_PID / ESP32_PS4BT_PS4BT
+    - RB0021_Omni4WD_PID : i2cから受信してモーター制御スケッチ
+    - ESP32_PS4BT_PS4BT : PS4コントローラから受信してi2cに送信スケッチ
         - 2018/7/7-8に開催された[NT金沢](http://wiki.nicotech.jp/nico_tech/index.php?NT%E9%87%91%E6%B2%A22018)に出展した作品のArduino sketchである
         - 簡単な紹介は[NT金沢2018紹介ペーパー](https://docs.google.com/presentation/d/1cxR8Wfju9DjyEiWv8WDgCyZg7StgXhj7UrDWSYJ_swc/edit#slide=id.g3c7cb5c890_0_0)参照のこと
         - Nexus robot製品の[メカナムホイールロボット](http://www.vstone.co.jp/products/nexusrobot/download/nexus_10021.pdf)をベースにする
