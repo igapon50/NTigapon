@@ -7,8 +7,12 @@
 #include <PID_Beta6.h>
 #include <MotorWheel.h>
 #include <Omni4WD.h>
+#define Enable_I2C
+#ifdef Enable_I2C
 #include <Wire.h>
-//   A4(SDA)とA5(SCL)は、I2C通信に使用する
+// A4(SDA)とA5(SCL)は、I2C通信に使用する
+static const int i2cAddress = 8;
+#endif// Enable_I2C
 
 #include "TwoStickControlMotor.h"
 TwoStickControlMotor spradcon;
@@ -54,23 +58,21 @@ MotorWheel wheel1(11,12,14,15,&irq1);
 MotorWheel wheel2(3,2,4,5,&irq2);
 MotorWheel wheel3(10,7,6,13,&irq3);
 MotorWheel wheel4(9,8,16,17,&irq4);
-
 Omni4WD Omni(&wheel1,&wheel2,&wheel3,&wheel4);
 
 void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.print(F(__DATE__ "/" __TIME__ "\r\n"));
+  Serial.print(F(__FILE__ "/" VERSION_STRING "\r\n"));
+#ifdef Enable_I2C
+  Wire.begin(i2cAddress);
+  Wire.onReceive(receiveEvent); // register event
+#endif//Enable_I2C
   //TCCR0B=TCCR0B&0xf8|0x01;    // warning!! it will change millis()
   TCCR1B=TCCR1B&0xf8|0x01;    // Pin9,Pin10 PWM 31250Hz
   TCCR2B=TCCR2B&0xf8|0x01;    // Pin3,Pin11 PWM 31250Hz
-
-  Wire.begin(8);                // join i2c bus with address #8
-  Wire.onReceive(receiveEvent); // register event
-#ifndef SILENT
-  Serial.begin(115200);
-  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
-  Serial.print(F("\r\n"));
-#endif
   Omni.PIDEnable(0.31,0.01,0,10); //float kc,float taui,float taud,unsigned int interval//P比例,I積分,D微分,T時間
-  spradcon.init();
 }
 
 void loop(){

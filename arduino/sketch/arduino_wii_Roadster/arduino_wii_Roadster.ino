@@ -75,10 +75,10 @@ int getUltrasonicDistance(int trigPin = 2, int echoPin = 4, unsigned long limit_
 
 void setup()
 {
-#ifndef SILENT
   Serial.begin(115200);
-  Serial.print(F(__DATE__ "/" __TIME__ "/" __FILE__ "/" VERSION_STRING));
-#endif
+  while (!Serial);
+  Serial.print(F(__DATE__ "/" __TIME__ "\r\n"));
+  Serial.print(F(__FILE__ "/" VERSION_STRING "\r\n"));
   pinMode(front_trigPin, OUTPUT);
   pinMode(front_echoPin, INPUT);
   pinMode(back_trigPin, OUTPUT);
